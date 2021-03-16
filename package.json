@@ -1,0 +1,17 @@
+{
+  "name": "tagel",
+  "version": "0.0.1",
+  "type": "module",
+  "description": "",
+  "main": "tagel.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "parse5": "^6.0.1",
+    "parse5-htmlparser2-tree-adapter": "^6.0.1"
+  }
+}
