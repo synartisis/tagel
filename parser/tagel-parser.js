@@ -1,10 +1,10 @@
-import path from 'path'
-import { readFile } from 'fs/promises'
-import * as parse5 from './parse5.js'
+import * as parse5 from '../parse5.js'
+import { tgImport } from './tg-import.js'
 
 
-export async function applyTagel(doc, filename, partials, tgContext) {
-  await tgImport(doc, filename, partials)
+export async function applyTagel(doc, filename, root, tgContext) {
+  await tgImport(doc, filename, root)
+  
   await tgEnv(doc, process.env.NODE_ENV === 'production' ? 'production' : 'development')
   await tgBind(doc, tgContext)
   await tgIf(doc, tgContext)
@@ -14,22 +14,8 @@ export async function applyTagel(doc, filename, partials, tgContext) {
 
 
 
-async function tgImport(doc, filename, partials) {
-  const refs = parse5.qsa(doc, el => el.name === 'link' && el.attribs['rel'] === 'import')
-  await Promise.all(
-    refs.map(async el => {
-      const { href } = el.attribs
-      const partialPath = path.join(path.dirname(filename), href)
-      partials[partialPath] = { type: 'dev-dep' }
-      const partialContent = (await readFile(partialPath)).toString()
-      const partialDoc = parse5.parseFragment(partialContent)
-      const partialDir = path.dirname(href)
-      await rewritePartials(partialDoc, partialDir)
-      partialDoc.children.forEach(child => parse5.insertBefore(child, el))
-      parse5.remove(el)
-    })
-  )
-}
+
+
 
 async function tgEnv(doc, currentEnv) {
   const els = parse5.qsa(doc, el => el.attribs && 'tg-env' in el.attribs)
@@ -123,24 +109,3 @@ async function tgLang(doc, tgContext) {
   )
 }
 
-
-
-async function rewritePartials(doc, relPath) {
-  const partialRefs = parse5.qsa(doc, el => [ 'script', 'link', 'img', 'a' ].includes(el.name))
-  await Promise.all(
-    partialRefs.map(async el => {
-      if (el.name === 'script' && !el.attribs['src']) return
-      if (el.name === 'link' && el.attribs['rel'] !== 'stylesheet' && !el.attribs['rel'].includes('icon')) return
-      if (el.name === 'img' && !el.attribs['src']) return
-      if (el.name === 'a' && !el.attribs['href']) return
-      const attr = 'src' in el.attribs ? 'src' : 'href'
-      const uri = el.attribs[attr]
-      const ref = uri && uri.split('?')[0]
-      // console.log(el.name, {uri,ref})
-      if (ref.startsWith('http://') || ref.startsWith('https://') || ref.startsWith('/')) return
-      const refNew = path.join(relPath, ref)
-      // console.log('--', refNew, relPath)
-      el.attribs[attr] = refNew
-    })
-  )    
-}

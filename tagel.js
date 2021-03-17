@@ -1,7 +1,7 @@
 import path from 'path'
 import { readFile, stat } from 'fs/promises'
 import * as parse5 from './parse5.js'
-import { applyTagel } from './tagel-parser.js'
+import { applyTagel } from './parser/tagel-parser.js'
 
 
 export function tagelExpress(root, {} = {}) {
@@ -9,7 +9,7 @@ export function tagelExpress(root, {} = {}) {
     const { filename, content } = await readFileContent(root, req.url)
     if (content !== undefined) {
       const doc = parse5.parseHtml(content)
-      await applyTagel(doc, filename, {}, req.tgContext)
+      await applyTagel(doc, filename, root, req.tgContext)
       return res.send(parse5.serialize(doc))
     }
     return next()
