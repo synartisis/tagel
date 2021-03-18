@@ -21,7 +21,7 @@ export async function applyTagel(doc, filename, tgContext) {
     if (el.attribs?.['tg-env']) await tgEnv(el, currentEnv)
     if (el.attribs?.['tg-if']) await tgIf(el, tgContext, errors)
     if (el.attribs?.['tg-for']) await tgFor(el, tgContext, errors)
-    if (el.attribs?.['tg-bind']) await tgBind(el, tgContext, errors)
+    await tgBind(el, tgContext, errors)
   })
   if (errors.length) {
     if (currentEnv === 'development') showErrors(doc, errors)

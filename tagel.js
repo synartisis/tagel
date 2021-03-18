@@ -3,6 +3,7 @@ import { readFile, stat } from 'fs/promises'
 import * as parse5 from './parse5.js'
 import { applyTagel } from './parser/tagel-parser.js'
 
+export { parse5, applyTagel }
 
 export function tagelExpress(root, {} = {}) {
   return async (req, res, next) => {
