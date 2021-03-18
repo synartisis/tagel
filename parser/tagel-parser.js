@@ -8,7 +8,7 @@ import { tgBind } from './tg-bind.js'
 import { showErrors } from '../utils.js'
 
 
-export async function applyTagel(doc, filename, tgContext) {
+export async function applyTagel(doc, filename, tgContext = {}) {
   const currentEnv = process.env.NODE_ENV === 'production' ? 'production' : 'development'
   const lang  = detectLang(doc, tgContext)
 
