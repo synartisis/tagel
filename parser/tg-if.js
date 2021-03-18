@@ -1,7 +1,7 @@
 import * as parse5 from '../parse5.js'
 
 
-export async function tgIf(el, tgContext) {
+export async function tgIf(el, tgContext, errors) {
   if (!tgContext) return
   const property = el.attribs['tg-if']
   if (property in tgContext) {
@@ -9,7 +9,7 @@ export async function tgIf(el, tgContext) {
     delete el.attribs['tg-if']
     if (!value) parse5.remove(el)
   } else {
-    console.error(`[tg-if] value for property "${property}" not found`)
+    errors.push(`[tg-if] property "${property}" not found`)
   }
 }
 

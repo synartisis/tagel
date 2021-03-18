@@ -9,7 +9,7 @@ export function tagelExpress(root, {} = {}) {
     const { filename, content } = await readFileContent(root, req.url)
     if (content !== undefined) {
       const doc = parse5.parseHtml(content)
-      await applyTagel(doc, filename, root, req.tgContext)
+      await applyTagel(doc, filename, req.tgContext)
       return res.send(parse5.serialize(doc))
     }
     return next()

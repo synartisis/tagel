@@ -1,10 +1,9 @@
 import path from 'path'
 import { readFile } from 'fs/promises'
 import * as parse5 from '../parse5.js'
-import { showError } from '../utils.js'
 
 
-export async function tgImport(el, doc, filename, root) {
+export async function tgImport(el, filename, errors) {
   const { href } = el.attribs
   const partialPath = path.join(path.dirname(filename), href)
   let partialContent
@@ -12,24 +11,22 @@ export async function tgImport(el, doc, filename, root) {
     partialContent = await readFile(partialPath, 'utf-8')
   } catch (error) {
     if (error.code === 'ENOENT') {
-      const errorMessage = `cannot found ${path.relative(root, partialPath)} referenced by ${path.relative(root, filename)} (${href})`
-      console.error(errorMessage)
-      showError(doc, errorMessage)
-      parse5.remove(el)
-      return
+      const errorMessage = `cannot found ${path.relative('.', partialPath)} referenced by ${path.relative('.', filename)} (${href})`
+      errors.push(errorMessage)
     } else {
       throw error
     }
   }
-  if (!partialContent) return
-  const partialDoc = parse5.parseFragment(partialContent)
-  const partialDir = path.dirname(href)
-  await rewritePartials(partialDoc, partialDir)
-  let insertAfterEl = el
-  partialDoc.children.forEach(child => {
-    parse5.insertAfter(child, insertAfterEl)
-    insertAfterEl = child
-  })
+  if (partialContent) {
+    const partialDoc = parse5.parseFragment(partialContent)
+    const partialDir = path.dirname(href)
+    await rewritePartials(partialDoc, partialDir)
+    let insertAfterEl = el
+    partialDoc.children.forEach(child => {
+      parse5.insertAfter(child, insertAfterEl)
+      insertAfterEl = child
+    })
+  }
   parse5.remove(el)
 }
 

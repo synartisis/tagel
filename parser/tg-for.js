@@ -1,12 +1,12 @@
 import * as parse5 from '../parse5.js'
 import { tgBindDoc } from './tg-bind.js'
 
-export async function tgFor(el, tgContext) {
+export async function tgFor(el, tgContext, errors) {
   const property = el.attribs['tg-for']
   if (property in tgContext) {
     const value = tgContext[property]
     if (!Array.isArray(value)) {
-      console.error(`[tg-for] value for property "${property}" is not array`)
+      errors.push(`[tg-for] value for property "${property}" is not array`)
       return
     }
     delete el.attribs['tg-for']
@@ -21,7 +21,7 @@ export async function tgFor(el, tgContext) {
     }
     parse5.remove(el)
   } else {
-    console.error(`[tg-for] value for property "${property}" not found`)
+    errors.push(`[tg-for] value for property "${property}" not found`)
   }
 }
 

@@ -41,7 +41,11 @@ export function qsa(node, predicate, res = []) {
 
 export async function walk(node, fn) {
   await fn(node)
-  if (node.children) await Promise.all(node.children.map(child => walk(child, fn)))
+  if (node.children) {
+    for await (const child of node.children) {
+      await walk(child, fn)
+    }
+  }
 }
 
 
@@ -93,6 +97,7 @@ export function insertAfter(newChild, refChild) {
 export function remove(el) {
   if (!el) throw new Error('missing parameter')
   el.parent.children.splice(el.parent.children.indexOf(el), 1)
+  el.children = []
   if (el.prev) el.prev.next = el.next
   if (el.next) el.next.prev = el.prev
 }

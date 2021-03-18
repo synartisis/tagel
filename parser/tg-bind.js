@@ -1,14 +1,18 @@
 import * as parse5 from '../parse5.js'
 
 
-export async function tgBind(el, tgContext) {
+export async function tgBind(el, tgContext, errors) {
   if (!tgContext) return
-  const varName = el.attribs['tg-bind']
-  const value = tgContext[varName]
-  // delete el.attribs['tg-bind']
-  if (value != null) {
-    const content = parse5.createTextNode(value)
-    parse5.append(el, content)
+  const property = el.attribs['tg-bind']
+  if (property in tgContext) {
+    const value = tgContext[property]
+    delete el.attribs['tg-bind']
+    if (value != null) {
+      const content = parse5.createTextNode(value)
+      parse5.append(el, content)
+    }
+  } else {
+    errors.push(`[tg-bind] property "${property}" not found`)
   }
 }
 
