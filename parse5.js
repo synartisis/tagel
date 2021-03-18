@@ -39,9 +39,9 @@ export function qsa(node, predicate, res = []) {
 }
 
 
-export function walk(node, fn) {
-  fn(node)
-  if (node.children) node.children.forEach(child => walk(child, fn))
+export async function walk(node, fn) {
+  await fn(node)
+  if (node.children) await Promise.all(node.children.map(child => walk(child, fn)))
 }
 
 

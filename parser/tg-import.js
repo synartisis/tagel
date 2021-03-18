@@ -4,35 +4,42 @@ import * as parse5 from '../parse5.js'
 import { showError } from '../utils.js'
 
 
-export async function tgImport(doc, filename, root) {
-    const refs = parse5.qsa(doc, el => el.name === 'link' && el.attribs['rel'] === 'import')
-    await Promise.all(
-      refs.map(async el => {
-        const { href } = el.attribs
-        const partialPath = path.join(path.dirname(filename), href)
-        let partialContent
-        try {
-          partialContent = await readFile(partialPath, 'utf-8')
-        } catch (error) {
-          if (error.code === 'ENOENT') {
-            const errorMessage = `cannot found ${path.relative(root, partialPath)} referenced by ${path.relative(root, filename)} (${href})`
-            console.error(errorMessage)
-            showError(doc, errorMessage)
-            parse5.remove(el)
-            return
-          } else {
-            throw error
-          }
-        }
-        if (!partialContent) return
-        const partialDoc = parse5.parseFragment(partialContent)
-        const partialDir = path.dirname(href)
-        await rewritePartials(partialDoc, partialDir)
-        partialDoc.children.forEach(child => parse5.insertBefore(child, el))
-        parse5.remove(el)
-      })
-    )
+export async function tgImport(el, doc, filename, root) {
+  const { href } = el.attribs
+  const partialPath = path.join(path.dirname(filename), href)
+  let partialContent
+  try {
+    partialContent = await readFile(partialPath, 'utf-8')
+  } catch (error) {
+    if (error.code === 'ENOENT') {
+      const errorMessage = `cannot found ${path.relative(root, partialPath)} referenced by ${path.relative(root, filename)} (${href})`
+      console.error(errorMessage)
+      showError(doc, errorMessage)
+      parse5.remove(el)
+      return
+    } else {
+      throw error
+    }
   }
+  if (!partialContent) return
+  const partialDoc = parse5.parseFragment(partialContent)
+  const partialDir = path.dirname(href)
+  await rewritePartials(partialDoc, partialDir)
+  let insertAfterEl = el
+  partialDoc.children.forEach(child => {
+    parse5.insertAfter(child, insertAfterEl)
+    insertAfterEl = child
+  })
+  parse5.remove(el)
+}
+
+
+export async function tgImportDoc(doc, filename, root) {
+  const refs = parse5.qsa(doc, el => el.name === 'link' && el.attribs['rel'] === 'import')
+  await Promise.all(
+    refs.map(async el => tgImport(el, doc, filename, root))
+  )
+}
   
 
   async function rewritePartials(doc, relPath) {
