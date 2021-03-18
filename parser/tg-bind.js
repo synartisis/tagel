@@ -30,10 +30,10 @@ export async function tgBind(el, tgContext, errors) {
 }
 
 
-export async function tgBindDoc(doc, tgContext) {
+export async function tgBindDoc(doc, tgContext, errors) {
   if (!tgContext) return
   const els = parse5.qsa(doc, el => el.attribs)
   await Promise.all(
-    els.map(el => tgBind(el, tgContext))
+    els.map(el => tgBind(el, tgContext, errors))
   )
 }
