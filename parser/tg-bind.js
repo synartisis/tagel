@@ -16,8 +16,8 @@ export async function tgBind(el, tgContext, errors) {
       errors.push(`[tg-bind] property "${property}" not found`)
     }
   }
-  for (const bindAttr of Object.keys(el.attribs).filter(o => o.startsWith(':'))) {
-    const attr = bindAttr.substring(1)
+  for (const bindAttr of Object.keys(el.attribs).filter(o => o.startsWith('tg:'))) {
+    const attr = bindAttr.substring(3)
     const attrProp = el.attribs[bindAttr]
     if (attrProp in tgContext) {
       const value = tgContext[attrProp] ?? ''

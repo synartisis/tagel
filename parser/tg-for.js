@@ -14,7 +14,7 @@ export async function tgFor(el, tgContext, errors) {
     for (const [$index, $item] of value.entries()) {
       // console.debug({$item, $index})
       const itemTemplate = parse5.clone(el)
-      itemTemplate.attribs['check'] = String($index)
+      // itemTemplate.attribs['check'] = String($index)
       await tgBindDoc(itemTemplate, $item, errors)
       parse5.insertAfter(itemTemplate, lastEl)
       lastEl = itemTemplate
