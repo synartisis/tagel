@@ -12,6 +12,7 @@ export async function tgFor(el, tgContext, errors) {
     }
     if (limit !== -1) value = value.slice(0, limit)
     delete el.attribs['tg-for']
+    delete el.attribs['tg-for-limit']
     let lastEl = el
     for (const [$index, $item] of value.entries()) {
       // console.debug({$item, $index})
