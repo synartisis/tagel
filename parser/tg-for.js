@@ -3,12 +3,14 @@ import { tgBindDoc } from './tg-bind.js'
 
 export async function tgFor(el, tgContext, errors) {
   const property = el.attribs['tg-for']
+  const limit = isNaN(el.attribs['tg-for-limit']) ? -1 : Number(el.attribs['tg-for-limit'])
   if (property in tgContext) {
-    const value = tgContext[property]
+    let value = tgContext[property]
     if (!Array.isArray(value)) {
       errors.push(`[tg-for] value for property "${property}" is not array`)
       return
     }
+    if (limit !== -1) value = value.slice(0, limit)
     delete el.attribs['tg-for']
     let lastEl = el
     for (const [$index, $item] of value.entries()) {
