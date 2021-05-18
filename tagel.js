@@ -32,7 +32,11 @@ async function readFileContent(root, url) {
     return readFileContent(root, url + '.html')
   }
   if (fileext === '.html') {
-    return { filename, content: await readFile(filename, 'utf-8') }
+    let content
+    try {
+      content = await readFile(filename, 'utf-8')
+    } catch (error) {}
+    return { filename, content }
   }
   return {}
 }
