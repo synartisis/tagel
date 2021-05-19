@@ -28,8 +28,8 @@ async function readFileContent(root, url) {
     try {
       filestat = await stat(filename)
     } catch (error) {}
-    if (filestat?.isDirectory()) return readFileContent(root, path.join(url, 'index.html'))
-    return readFileContent(root, url + '.html')
+    if (filestat?.isDirectory()) return readFileContent(root, path.join(fileUrl, 'index.html'))
+    return readFileContent(root, fileUrl + '.html')
   }
   if (fileext === '.html') {
     let content
