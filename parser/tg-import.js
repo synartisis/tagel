@@ -27,7 +27,6 @@ export async function tgImport(el, filename, errors) {
       insertAfterEl = child
     })
   }
-  parse5.remove(el)
 }
 
 
