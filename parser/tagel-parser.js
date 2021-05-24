@@ -15,14 +15,16 @@ export async function applyTagel(doc, filename, tgContext = {}) {
   // console.log(JSON.stringify(tgContext,null,2))
 
   const errors = []
+  const toRemove = []
   await parse5.walk(doc, async el => {
-    if (el.name === 'link' && el.attribs?.['rel'] === 'import') await tgImport(el, filename, errors)
+    if (el.name === 'link' && el.attribs?.['rel'] === 'import') { await tgImport(el, filename, errors); toRemove.push(el) }
     if (lang && el.attribs?.['lang']) await tgLang(el, lang)
     if (el.attribs?.['tg-env']) await tgEnv(el, currentEnv)
     if (el.attribs?.['tg-if']) await tgIf(el, tgContext, errors)
     if (el.attribs?.['tg-for']) await tgFor(el, tgContext, errors)
     await tgBind(el, tgContext, errors)
   })
+  toRemove.forEach(el => parse5.remove(el))
   if (errors.length) {
     if (currentEnv === 'development') showErrors(doc, errors)
     errors.forEach(err => console.error('[template error]', err))
