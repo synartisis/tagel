@@ -9,8 +9,10 @@ export async function tgBind(el, tgContext, errors) {
       const value = tgContext[property]
       delete el.attribs['tg-bind']
       if (value != null) {
-        const content = parse5.createTextNode(value)
-        parse5.append(el, content)
+        const content = parse5.parseFragment(value)
+        for (const child of content.children) {
+          parse5.append(el, child)
+        }
       }
     } else {
       errors.push(`[tg-bind] property "${property}" not found`)
