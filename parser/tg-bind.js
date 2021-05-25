@@ -1,7 +1,7 @@
 import * as parse5 from '../parse5.js'
 
 
-export async function tgBind(el, tgContext, errors) {
+export async function tgBind(el, tgContext) {
   if (!tgContext || !el.attribs) return
   const property = el.attribs['tg-bind']
   if (property) {
@@ -15,7 +15,7 @@ export async function tgBind(el, tgContext, errors) {
         }
       }
     } else {
-      errors.push(`[tg-bind] property "${property}" not found`)
+      tgContext.$tagel.errors.push(`[tg-bind] property "${property}" not found`)
     }
   }
   for (const bindAttr of Object.keys(el.attribs).filter(o => o.startsWith('tg:'))) {
@@ -26,16 +26,16 @@ export async function tgBind(el, tgContext, errors) {
       el.attribs[attr] = value
       delete el.attribs[bindAttr]
     } else {
-      errors.push(`[tg-bind] attribute variable "${attrProp}" not found`)
+      tgContext.$tagel.errors.push(`[tg-bind] attribute variable "${attrProp}" not found`)
     }
   }
 }
 
 
-export async function tgBindDoc(doc, tgContext, errors) {
+export async function tgBindTree(root, tgContext) {
   if (!tgContext) return
-  const els = parse5.qsa(doc, el => el.attribs)
+  const els = parse5.qsa(root, el => el.attribs)
   await Promise.all(
-    els.map(el => tgBind(el, tgContext, errors))
+    els.map(el => tgBind(el, tgContext))
   )
 }

@@ -16,14 +16,3 @@ export async function tgLangDoc(doc, tgContext) {
     els.map(el => parse5.remove(el))
   )
 }
-
-
-export function detectLang(doc, tgContext) {
-  const htmlTag = parse5.qs(doc, el => el.name === 'html')
-  if (!htmlTag) return null
-  if (tgContext.lang) {
-    htmlTag.attribs['lang'] = tgContext.lang
-  }
-  const lang = htmlTag.attribs['lang']
-  return lang
-}

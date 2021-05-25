@@ -3,16 +3,16 @@ import { readFile } from 'fs/promises'
 import * as parse5 from '../parse5.js'
 
 
-export async function tgImport(el, filename, errors) {
+export async function tgImport(el, tgContext) {
   const { href } = el.attribs
-  const partialPath = path.join(path.dirname(filename), href)
+  const partialPath = path.join(path.dirname(tgContext.$tagel.filename), href)
   let partialContent
   try {
     partialContent = await readFile(partialPath, 'utf-8')
   } catch (error) {
     if (error.code === 'ENOENT') {
-      const errorMessage = `cannot found ${path.relative('.', partialPath)} referenced by ${path.relative('.', filename)} (${href})`
-      errors.push(errorMessage)
+      const errorMessage = `cannot found ${path.relative('.', partialPath)} referenced by ${path.relative('.', tgContext.$tagel.filename)} (${href})`
+      tgContext.$tagel.errors.push(errorMessage)
     } else {
       throw error
     }

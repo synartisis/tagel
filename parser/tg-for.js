@@ -1,13 +1,14 @@
 import * as parse5 from '../parse5.js'
-import { tgBindDoc } from './tg-bind.js'
+import { tgBindTree } from './tg-bind.js'
+import { applyTagelToElement } from './tagel-parser.js'
 
-export async function tgFor(el, tgContext, errors) {
+export async function tgFor(el, tgContext) {
   const property = el.attribs['tg-for']
   const limit = isNaN(el.attribs['tg-for-limit']) ? -1 : Number(el.attribs['tg-for-limit'])
   if (property in tgContext) {
     let value = tgContext[property]
     if (!Array.isArray(value)) {
-      errors.push(`[tg-for] value for property "${property}" is not array`)
+      tgContext.$tagel.errors.push(`[tg-for] value for property "${property}" is not array`)
       return
     }
     if (limit !== -1) value = value.slice(0, limit)
@@ -15,16 +16,22 @@ export async function tgFor(el, tgContext, errors) {
     delete el.attribs['tg-for-limit']
     let lastEl = el
     for (const [$index, $item] of value.entries()) {
-      // console.debug({$item, $index})
       const itemTemplate = parse5.clone(el)
       // itemTemplate.attribs['check'] = String($index)
-      await tgBindDoc(itemTemplate, $item, errors)
+      // console.debug(parse5.serialize(itemTemplate))
+      Object.assign($item, { $tagel: { ...tgContext.$tagel } })
+      await applyTagelToElement(itemTemplate, $item, ['tg-for'])
+      await tgBindTree(itemTemplate, $item)
+      // await tgBindDoc(itemTemplate, $item, errors)
       parse5.insertAfter(itemTemplate, lastEl)
       lastEl = itemTemplate
     }
-    parse5.remove(el)
+    // tgContext.$tagel.toRemove.push(el)
+    setTimeout(() => parse5.remove(el))
+    // parse5.remove(el)
+    // el.attribs.style = 'display: none;'
   } else {
-    errors.push(`[tg-for] value for property "${property}" not found`)
+    tgContext.$tagel.errors.push(`[tg-for] value for property "${property}" not found`)
   }
 }
 

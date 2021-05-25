@@ -28,6 +28,6 @@ export function showErrors(doc, errors) {
 
 
 const styles = {
-  error: 'position: fixed; top: 0; width: 100vw; height: 100vh; color: #ccc; padding: 1rem; background: #000c;'
+  error: 'position: fixed; top: 0; width: 100vw; height: 100vh; color: #ccc; padding: 1rem; background: #000c; z-index: 99999999;'
 }
 
