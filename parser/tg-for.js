@@ -20,15 +20,15 @@ export async function tgFor(el, tgContext) {
       // itemTemplate.attribs['check'] = String($index)
       // console.debug(parse5.serialize(itemTemplate))
       Object.assign($item, { $tagel: { ...tgContext.$tagel } })
-      await applyTagelToElement(itemTemplate, $item, ['tg-for'])
+      await applyTagelToElement(itemTemplate, $item, { recursive: true })
       await tgBindTree(itemTemplate, $item)
       // await tgBindDoc(itemTemplate, $item, errors)
       parse5.insertAfter(itemTemplate, lastEl)
       lastEl = itemTemplate
     }
     // tgContext.$tagel.toRemove.push(el)
-    setTimeout(() => parse5.remove(el))
-    // parse5.remove(el)
+    // setTimeout(() => parse5.remove(el))
+    parse5.remove(el)
     // el.attribs.style = 'display: none;'
   } else {
     tgContext.$tagel.errors.push(`[tg-for] value for property "${property}" not found`)

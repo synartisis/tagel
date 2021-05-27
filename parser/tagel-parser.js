@@ -28,12 +28,17 @@ export async function applyTagel(doc, filename, tgContext = {}) {
 
 }
 
-export async function applyTagelToElement(el, tgContext, exclude = []) {
+export async function applyTagelToElement(el, tgContext, { recursive = false } = {}) {
   if (el.name === 'link' && el.attribs?.['rel'] === 'import') { await tgImport(el, tgContext); tgContext.$tagel.toRemove.push(el) }
   if (tgContext.$tagel.lang && el.attribs?.['lang']) await tgLang(el, tgContext.$tagel.lang)
   if (el.attribs?.['tg-env']) await tgEnv(el, tgContext.$tagel.env)
   if (el.attribs?.['tg-if']) await tgIf(el, tgContext)
-  if (!exclude.includes('tg-for') && el.attribs?.['tg-for']) await tgFor(el, tgContext)
+  if (el.attribs?.['tg-for']) await tgFor(el, tgContext)
+  if (recursive) {
+    for await (const child of el.children) {
+      await applyTagelToElement(child, tgContext, { recursive })
+    }
+  }
   // await tgBind(el, tgContext)
 }
 
