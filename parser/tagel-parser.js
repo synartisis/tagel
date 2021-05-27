@@ -34,7 +34,7 @@ export async function applyTagelToElement(el, tgContext, { recursive = false } =
   if (el.attribs?.['tg-env']) await tgEnv(el, tgContext.$tagel.env)
   if (el.attribs?.['tg-if']) await tgIf(el, tgContext)
   if (el.attribs?.['tg-for']) await tgFor(el, tgContext)
-  if (recursive) {
+  if (recursive && el.children) {
     for await (const child of el.children) {
       await applyTagelToElement(child, tgContext, { recursive })
     }

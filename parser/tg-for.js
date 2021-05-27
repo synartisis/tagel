@@ -18,10 +18,11 @@ export async function tgFor(el, tgContext) {
     for (const [$index, $item] of value.entries()) {
       const itemTemplate = parse5.clone(el)
       // itemTemplate.attribs['check'] = String($index)
-      // console.debug(parse5.serialize(itemTemplate))
+      // console.debug(tgContext)
       Object.assign($item, { $tagel: { ...tgContext.$tagel } })
-      await applyTagelToElement(itemTemplate, $item, { recursive: true })
       await tgBindTree(itemTemplate, $item)
+      // console.debug(parse5.serialize(itemTemplate))
+      await applyTagelToElement(itemTemplate, $item, { recursive: true })
       // await tgBindDoc(itemTemplate, $item, errors)
       parse5.insertAfter(itemTemplate, lastEl)
       lastEl = itemTemplate
