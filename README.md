@@ -45,7 +45,7 @@ attribute value must be an array. It repeats the element (and subtree) and binds
 ### tg-bind 
 set the element's content to the evaluated value
 ```html
-<div ng-bind="a_property"></div>
+<div tg-bind="a_property"></div>
 ```
 
 ### Attribute Binding
