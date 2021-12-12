@@ -5,6 +5,14 @@ import { applyTagel } from './parser/tagel-parser.js'
 
 export { parse5, applyTagel }
 
+
+export async function tagel(html, filename, context) {
+  const doc = parse5.parseHtml(html)
+  await applyTagel(doc, filename, context)
+  return parse5.serialize(doc)
+}
+
+
 export function tagelExpress(root, {} = {}) {
   return async (req, res, next) => {
     const { filename, content } = await readFileContent(root, req.url)
