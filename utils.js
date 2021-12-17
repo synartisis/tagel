@@ -1,6 +1,17 @@
 import * as parse5 from './parse5.js'
 
 
+export function evaluate(source, tgContext) {
+  const f = new Function(...Object.keys(tgContext), 'return ' + source)
+  try {
+    const value = f(...Object.values(tgContext))
+    return value
+  } catch (error) {
+    tgContext.$tagel.errors.push(`[tagel evaluate error] "${error}"`)
+  }
+}
+
+
 export function showError(doc, message) {
   let tagelErrorEl = parse5.qs(doc, el => el.attribs?.id === 'tagel-error')
   if (!tagelErrorEl) {

@@ -1,16 +1,14 @@
 import * as parse5 from '../parse5.js'
+import { evaluate } from '../utils.js'
 
 
 export async function tgIf(el, tgContext) {
-  if (!tgContext) return
-  const property = el.attribs['tg-if']
-  if (property in tgContext) {
-    const value = tgContext[property]
-    delete el.attribs['tg-if']
-    if (!value) parse5.remove(el)
-  } else {
-    tgContext.$tagel.errors.push(`[tg-if] property "${property}" not found`)
-  }
+  if (!el || !tgContext) return
+  const expression = el.attribs['tg-if']
+  if (!expression) return
+  const value = evaluate(expression, tgContext)
+  delete el.attribs['tg-if']
+  if (!value) parse5.remove(el)
 }
 
 

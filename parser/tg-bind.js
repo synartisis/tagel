@@ -1,32 +1,32 @@
 import * as parse5 from '../parse5.js'
+import { evaluate } from '../utils.js'
 
+const BIND_ATTRIBUTE_PREFIX = 'tg:'
 
 export async function tgBind(el, tgContext) {
   if (!tgContext || !el.attribs) return
-  const property = el.attribs['tg-bind']
-  if (property) {
-    if (property in tgContext) {
-      const value = tgContext[property]
-      delete el.attribs['tg-bind']
-      if (value != null) {
-        const content = parse5.parseFragment(value)
-        for (const child of content.children) {
-          parse5.append(el, child)
-        }
+  // element content binding
+  const source = el.attribs['tg-bind']
+  if (source) {
+    const value = evaluate(source, tgContext)
+    if (value != null) {
+      const fragment = parse5.parseFragment(String(value))
+      while (el.children.length > 0) {
+        parse5.remove(el.children[0])
+      } 
+      for (const child of fragment.children) {
+        parse5.append(el, child)
       }
-    } else {
-      tgContext.$tagel.errors.push(`[tg-bind] property "${property}" not found`)
     }
   }
-  for (const bindAttr of Object.keys(el.attribs).filter(o => o.startsWith('tg:'))) {
-    const attr = bindAttr.substring(3)
-    const attrProp = el.attribs[bindAttr]
-    if (attrProp in tgContext) {
-      const value = tgContext[attrProp] ?? ''
+  // attributes binding
+  for (const bindAttr of Object.keys(el.attribs).filter(o => o.startsWith(BIND_ATTRIBUTE_PREFIX))) {
+    const attr = bindAttr.substring(BIND_ATTRIBUTE_PREFIX.length)
+    const attrContent = el.attribs[bindAttr]
+    const value = evaluate(attrContent, tgContext)
+    if (value) {
       el.attribs[attr] = value
       delete el.attribs[bindAttr]
-    } else {
-      tgContext.$tagel.errors.push(`[tg-bind] attribute variable "${attrProp}" not found`)
     }
   }
 }
