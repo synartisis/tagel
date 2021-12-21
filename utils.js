@@ -2,9 +2,9 @@ import * as parse5 from './parse5.js'
 
 
 export function evaluate(source, tgContext) {
-  const f = new Function('data', 'return ' + source)
   // const f = new Function(...Object.keys(tgContext), 'return ' + source)
   try {
+    const f = new Function('data', 'return ' + source)
     const value = f(tgContext)
     return value
   } catch (error) {

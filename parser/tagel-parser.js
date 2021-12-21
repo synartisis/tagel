@@ -50,7 +50,7 @@ function handleErrors(doc) {
   if (errorRefs.length) {
     const errors = errorRefs.map(ref => ref.$tagelError)
     if (env === 'development') showErrors(doc, errors)
-    errors.forEach(err => console.error('[tagel template error]', err))
+    errors.forEach(err => console.error('[tagel error]', err))
   }
 }
 
