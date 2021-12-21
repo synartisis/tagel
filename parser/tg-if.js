@@ -1,21 +1,28 @@
 import * as parse5 from '../parse5.js'
-import { evaluate } from '../utils.js'
+import { evaluate, getContext } from '../utils.js'
 
 
-export async function tgIf(el, tgContext) {
-  if (!el || !tgContext) return
-  const expression = el.attribs['tg-if']
-  if (!expression) return
-  const value = evaluate(expression, tgContext)
-  delete el.attribs['tg-if']
-  if (!value) parse5.remove(el)
-}
 
+/**
+ * removes elements (with children) when the expression evaluates to false
+ * @param {tagel.Element} root
+ * @returns {Promise<number>}
+ */
+export async function tgIf(root) {
+  if (!root) return 0
+  const refs = parse5.qsa(root, el => el?.attribs?.['tg-if'])
+  if (!refs.length) return 0
 
-export async function tgIfDoc(doc, tgContext) {
-  if (!tgContext) return
-  const els = parse5.qsa(doc, el => el.attribs && 'tg-if' in el.attribs)
-  await Promise.all(
-    els.map(el => tgIf(el, tgContext))
-  )
+  for (const el of refs) {
+    const context = getContext(el)
+    const expression = el.attribs['tg-if']
+    if (!expression) continue
+    const value = evaluate(expression, context)
+    if (!value) {
+      parse5.remove(el)
+    } else {
+      delete el.attribs['tg-if']
+    }
+  }
+  return refs.length
 }

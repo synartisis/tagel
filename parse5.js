@@ -7,7 +7,13 @@ export function parseHtml(html) {
 }
 
 
+/**
+ * parser a document fragment and returns a tree
+ * @param {string} html 
+ * @returns {tagel.Element}
+ */
 export function parseFragment(html) {
+  // @ts-ignore
   return parse5.parseFragment(html, { treeAdapter: htmlparser2Adapter })
 }
 
@@ -32,6 +38,13 @@ export function qs(node, predicate) {
 }
 
 
+/**
+ * returns an array of Elements that matching the predicate
+ * @param {tagel.Element} node 
+ * @param {(el: tagel.Element) => boolean} predicate 
+ * @param {tagel.Element[]} res 
+ * @returns {tagel.Element[]}
+ */
 export function qsa(node, predicate, res = []) {
   if (predicate(node)) res.push(node)
   if (node.children) node.children.forEach(child => qsa(child, predicate, res))
@@ -49,6 +62,7 @@ export async function walk(node, fn) {
 }
 
 
+/** @type {(type: string, attributes?: object) => tagel.Element} */
 export function createElement(type, attributes = {}) {
   return {
     type: 'tag',
@@ -83,6 +97,7 @@ export function insertBefore(newChild, refChild) {
 }
 
 
+/** @type {(newChild: tagel.Element, refChild: tagel.Element) => void} */
 export function insertAfter(newChild, refChild) {
   if (!newChild || !refChild) throw new Error('missing parameter')
   newChild.parent = refChild.parent
@@ -103,6 +118,7 @@ export function remove(el) {
 }
 
 
+/** @type {(parent: tagel.Element, el: tagel.Element) => void} */
 export function append(parent, el) {
   if (!parent || !el) throw new Error('missing parameter')
   el.parent = parent
@@ -114,6 +130,7 @@ export function append(parent, el) {
 }
 
 
+/** @type {(el: tagel.Element) => tagel.Element} */
 export function clone(el) {
   const newEl = { ...el, attribs: el.attribs ? { ...el.attribs } : null, children: [], parent: null, prev: null, next: null }
   if (el.children) {

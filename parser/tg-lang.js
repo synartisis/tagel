@@ -1,18 +1,22 @@
 import * as parse5 from '../parse5.js'
 
 
-export async function tgLang(el, lang) {
-  if (!lang) return
-  if (el.attribs?.['lang'] && el.attribs?.['lang'] !== lang) {
-    parse5.remove(el)
+/**
+ * removes elements with lang different than the current language
+ * @param {tagel.Element} root 
+ * @param {string} lang 
+ * @returns {Promise<number>}
+ */
+export async function tgLang(root, lang) {
+  if (!root || !lang) return 0
+  const refs = parse5.qsa(root, el => el?.attribs?.['lang'])
+  if (!refs.length) return 0
+  for (const el of refs) {
+    if (el.attribs['lang'] !== lang) {
+      parse5.remove(el)
+    } else {
+      delete el.attribs['lang']
+    }
   }
-}
-
-
-export async function tgLangDoc(doc, tgContext) {
-  const lang = detectLang(doc, tgContext)
-  const els = parse5.qsa(doc, el => el.attribs && 'lang' in el.attribs && el.attribs['lang'] !== lang)
-  await Promise.all(
-    els.map(el => parse5.remove(el))
-  )
+  return refs.length
 }
