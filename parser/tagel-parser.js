@@ -36,9 +36,9 @@ export async function applyTagel(root, filename, context = {}) {
     changes += await tgIf(root)
     changes += await tgBind(root)
     
-    console.log({changes})
+    // console.debug({changes})
   } while (changes > 0 && loops < LOOP_THRESHOLD)
-  console.log({loops, lang})
+  // console.debug({ loops })
 
 
   handleErrors(root)
