@@ -21,6 +21,13 @@ export function getContext(el) {
 }
 
 
+export function findParent(el, predicate) {
+  if (!el.parent) return null
+  if (predicate(el.parent)) return el.parent
+  return findParent(el.parent, predicate)
+}
+
+
 export function showError(doc, message) {
   let tagelErrorEl = parse5.qs(doc, el => el.attribs?.id === 'tagel-error')
   if (!tagelErrorEl) {

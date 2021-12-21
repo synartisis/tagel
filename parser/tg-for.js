@@ -1,5 +1,5 @@
 import * as parse5 from '../parse5.js'
-import { evaluate, getContext } from '../utils.js'
+import { evaluate, getContext, findParent } from '../utils.js'
 
 
 /**
@@ -10,6 +10,8 @@ import { evaluate, getContext } from '../utils.js'
 export async function tgFor(root) {
   if (!root) return 0
   const refs = parse5.qsa(root, el => el?.attribs?.['tg-for'])
+    .filter(el => !findParent(el, par => par?.attribs?.['tg-for']))
+    // skip nested tg-for elements to avoid missing context
   if (!refs.length) return 0
   
   for (const el of refs) {

@@ -1,9 +1,9 @@
 import * as parse5 from '../parse5.js'
 import { tgEnv } from './tg-env.js'
-import { tgIf } from './tg-if.js'
 import { tgImport } from './tg-import.js'
-import { tgFor } from './tg-for.js'
 import { tgLang } from './tg-lang.js'
+import { tgFor } from './tg-for.js'
+import { tgIf } from './tg-if.js'
 import { tgBind } from './tg-bind.js'
 import { showErrors } from '../utils.js'
 
@@ -30,10 +30,10 @@ export async function applyTagel(root, filename, context = {}) {
     changes = 0
 
     changes += await tgEnv(root, env)
-    changes += await tgIf(root)
     changes += await tgImport(root, filename)
-    changes += await tgFor(root)
     changes += await tgLang(root, lang)
+    changes += await tgFor(root)
+    changes += await tgIf(root)
     changes += await tgBind(root)
     
     console.log({changes})
