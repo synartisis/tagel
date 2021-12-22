@@ -13,7 +13,7 @@ const LOOP_THRESHOLD = 30
 
 /**
  * applies tagel engine to a parse5 dom
- * @param {tagel.Element} root the root element
+ * @param {tagel.Node} root the root element
  * @param {string} filename the filename
  * @param {object} context tagel context
  */
@@ -45,20 +45,20 @@ export async function applyTagel(root, filename, context = {}) {
 }
 
 
-function handleErrors(doc) {
+function handleErrors(/** @type {tagel.Node} */doc) {
   const errorRefs = parse5.qsa(doc, el => !!el.$tagelError)
-  if (errorRefs.length) {
-    const errors = errorRefs.map(ref => ref.$tagelError)
-    if (env === 'development') showErrors(doc, errors)
-    errors.forEach(err => console.error('[tagel error]', err))
-  }
+  if (!errorRefs.length) return 
+  const errors = errorRefs.map(ref => ref.$tagelError || '')
+  if (errors && env === 'development') showErrors(doc, errors)
+  errors.forEach(err => console.error('[tagel error]', err))
 }
 
 
+/** @type {(doc: tagel.Node, context: any) => string} */
 function applyLang(doc, context) {
   let { lang } = context
   const htmlTag = parse5.qs(doc, el => el.name === 'html')
-  if (htmlTag) {
+  if (htmlTag && htmlTag.attribs) {
     if (lang) {
       htmlTag.attribs['lang'] = lang
     } else {

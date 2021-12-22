@@ -1,35 +1,35 @@
-import treeAdapter from "parse5-htmlparser2-tree-adapter"
+export async function tagel(html: string, filename: string, context: object): string
 
-export function tagel(html: string, filename: string, context: object): string
 
 
 declare global {
   namespace tagel {
-
-    type Node = {
+    
+    type NodeTypes = 'tag' | 'text' | 'directive' | 'root' | 'script'
+    
+    interface Node {
       type: string
-    }
-
-    type Element = Node & {
       name: string
-      namespace: string
-      ['x-attribsNamespace']: object
-      ['x-attribsPrefix']: object
-      children: Element[]
-      attribs: object
-      parent: Element
-      prev: Element
-      next: Element
-
+      namespace?: string
+      attribs?: Attribs
+      'x-attribsNamespace'?: {}
+      'x-attribsPrefix'?: {}
+      children?: Node[]
+      data?: string
+      parent: tagel.Node | null
+      prev: tagel.Node | null
+      next: tagel.Node | null
       $context?: object
       $tagelError?: string
     }
 
-  }
-}
+    type Predicate = (el: Node) => boolean
 
-declare namespace treeAdapter {
-  interface BaseNode {
-    $tagelError: string
+    interface Attribs {
+      id?: string
+      style?: string
+      [key: string]: string
+    }
+
   }
 }

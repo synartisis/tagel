@@ -6,6 +6,13 @@ import { applyTagel } from './parser/tagel-parser.js'
 export { parse5, applyTagel }
 
 
+/**
+ * Applies tagel template engine to an html content
+ * @param {string} html the html content to be parsed
+ * @param {string} filename the filename (used for imports)
+ * @param {object} context tagel context
+ * @returns {Promise<string>}
+ */
 export async function tagel(html, filename, context) {
   const doc = parse5.parseHtml(html)
   await applyTagel(doc, filename, context)
@@ -13,7 +20,9 @@ export async function tagel(html, filename, context) {
 }
 
 
+/** @type {(root: string) => Function} */
 export function tagelExpress(root, {} = {}) {
+  /** @type {(req: any, res: any, next: any) => Promise<any>} */
   return async (req, res, next) => {
     const { filename, content } = await readFileContent(root, req.url)
     if (content !== undefined) {
@@ -27,10 +36,11 @@ export function tagelExpress(root, {} = {}) {
 
 
 
+/** @type {(root: string, url: string) => Promise<{ filename: string, content?: string }>} */
 async function readFileContent(root, url) {
   const fileUrl = url.split('?')[0]
   const filename = path.join(root, fileUrl)
-  const fileext = path.extname(filename.split('/').pop())
+  const fileext = path.extname(filename.split('/').pop() || '')
   if (fileext === '') {
     let filestat
     try {
@@ -46,5 +56,5 @@ async function readFileContent(root, url) {
     } catch (error) {}
     return { filename, content }
   }
-  return {}
+  return { filename }
 }

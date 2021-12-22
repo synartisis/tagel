@@ -4,22 +4,22 @@ import { evaluate, getContext, findParent } from '../utils.js'
 
 /**
  * repeats a template, once for each item oa an array
- * @param {tagel.Element} root 
+ * @param {tagel.Node} root 
  * @returns {Promise<number>}
  */
 export async function tgFor(root) {
   if (!root) return 0
-  const refs = parse5.qsa(root, el => el?.attribs?.['tg-for'])
-    .filter(el => !findParent(el, par => par?.attribs?.['tg-for']))
+  const refs = parse5.qsa(root, el => !!el?.attribs?.['tg-for'])
+    .filter(el => !findParent(el, par => !!par?.attribs?.['tg-for']))
     // skip nested tg-for elements to avoid missing context
   if (!refs.length) return 0
   
   for (const el of refs) {
     const context = getContext(el)
-    const expression = el.attribs['tg-for']
-    const limit = isNaN(el.attribs['tg-for-limit']) ? -1 : Number(el.attribs['tg-for-limit'])
-    delete el.attribs['tg-for']
-    delete el.attribs['tg-for-limit']
+    const expression = el.attribs?.['tg-for']
+    const limit = Number.isInteger(el.attribs?.['tg-for-limit']) ? Number(el.attribs?.['tg-for-limit']) : -1
+    delete el.attribs?.['tg-for']
+    delete el.attribs?.['tg-for-limit']
     if (!expression) continue
     let value = evaluate(expression, context)
     if (value == null) continue

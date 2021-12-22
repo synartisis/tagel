@@ -5,15 +5,15 @@ const BIND_ATTRIBUTE_PREFIX = 'tg:'
 
 /**
  * binds element content and attributes
- * @param {tagel.Element} root 
+ * @param {tagel.Node} root 
  * 
  */
 export async function tgBind(root) {
   if (!root) return 0
   const refs = parse5.qsa(root, el => 
-    el?.attribs?.['tg-bind'] || 
-    el.attribs && Object.keys(el.attribs).find(k => k.startsWith(BIND_ATTRIBUTE_PREFIX))
-  ).filter(el => !findParent(el, par => par?.attribs?.['tg-for']))
+    !!el.attribs?.['tg-bind'] || 
+    !!(el.attribs && Object.keys(el.attribs).find(k => k.startsWith(BIND_ATTRIBUTE_PREFIX)))
+  ).filter(el => !findParent(el, par => !!par?.attribs?.['tg-for']))
   // skip nested tg-for elements to avoid missing context
   if (!refs.length) return 0
 
@@ -21,16 +21,18 @@ export async function tgBind(root) {
     const context = getContext(el)
     // content binding
     const expression = el.attribs?.['tg-bind']
-    delete el.attribs['tg-bind']
+    delete el.attribs?.['tg-bind']
     if (expression) {
       const value = evaluate(expression, context)
       if (value != null) {
         const fragment = parse5.parseFragment(String(value))
-        while (el.children.length > 0) {
-          parse5.remove(el.children[0])
-        } 
-        for (const child of fragment.children) {
-          parse5.append(el, child)
+        if (el.children) {
+          while (el.children.length > 0) {
+            parse5.remove(el.children[0])
+          } 
+          for (const child of fragment.children) {
+            parse5.append(el, child)
+          }
         }
       }
     }
