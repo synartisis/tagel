@@ -21,7 +21,7 @@ export async function tgBind(root) {
   for (const el of refs) {
     const context = getContext(el)
     // content binding
-    if (!el.attribs) return
+    if (!el.attribs) return 0
     const attrs = Object.keys(el.attribs)
     const bingindAttr = BINDING_ATTRS.find(bAttr => attrs.includes(bAttr))
     if (bingindAttr) {
@@ -35,10 +35,10 @@ export async function tgBind(root) {
           if (bingindAttr === 'tg-bind') {
             const newEl = parse5.parseFragment(sValue)
             newEl.children.forEach(child => parse5.insertBefore(child, el))
-            parse5.remove(el)
           }
         }
       }
+      if (bingindAttr === 'tg-bind') parse5.remove(el)
       delete el.attribs[bingindAttr]
     }
     // attributes binding
