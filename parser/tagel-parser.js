@@ -40,7 +40,6 @@ export async function applyTagel(root, filename, context = {}) {
   } while (changes > 0 && loops < LOOP_THRESHOLD)
   // console.debug({ loops })
 
-
   handleErrors(root)
 }
 

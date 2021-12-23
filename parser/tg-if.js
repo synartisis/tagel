@@ -19,11 +19,16 @@ export async function tgIf(root) {
     const context = getContext(el)
     const expression = el.attribs?.['tg-if']
     if (!expression) continue
-    const value = evaluate(expression, context)
-    if (!value) {
-      parse5.remove(el)
-    } else {
-      delete el.attribs?.['tg-if']
+    try {
+      const value = evaluate(expression, context)
+      if (!value) {
+        parse5.remove(el)
+      } else {
+        delete el.attribs?.['tg-if']
+      }
+    } catch (error) {
+      // @ts-ignore
+      el.$tagelError = `[tg-if: ${expression}] ${error.message}`
     }
   }
   return refs.length

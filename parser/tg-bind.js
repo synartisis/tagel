@@ -23,23 +23,29 @@ export async function tgBind(root) {
     // content binding
     if (!el.attribs) return 0
     const attrs = Object.keys(el.attribs)
-    const bingindAttr = BINDING_ATTRS.find(bAttr => attrs.includes(bAttr))
-    if (bingindAttr) {
-      const expression = el.attribs[bingindAttr]
+    const bindindAttr = BINDING_ATTRS.find(bAttr => attrs.includes(bAttr))
+    if (bindindAttr) {
+      const expression = el.attribs[bindindAttr]
       if (expression) {
-        const value = evaluate(expression, context)
-        if (value != null) {
-          const sValue = String(value)
-          if (bingindAttr === 'tg-text') parse5.textContent(el, sValue)
-          if (bingindAttr === 'tg-html') parse5.innerHTML(el, sValue)
-          if (bingindAttr === 'tg-bind') {
-            const newEl = parse5.parseFragment(sValue)
+        let result
+        try {
+          const value = evaluate(expression, context)
+          if (value != null) result = String(value)
+        } catch (error) {
+          // @ts-ignore
+          el.$tagelError = `[${bindindAttr}: ${expression}] ${error.message}`
+        }
+        if (result) {
+          if (bindindAttr === 'tg-text') parse5.textContent(el, result)
+          if (bindindAttr === 'tg-html') parse5.innerHTML(el, result)
+          if (bindindAttr === 'tg-bind') {
+            const newEl = parse5.parseFragment(result)
             newEl.children.forEach(child => parse5.insertBefore(child, el))
           }
         }
       }
-      if (bingindAttr === 'tg-bind') parse5.remove(el)
-      delete el.attribs[bingindAttr]
+      if (bindindAttr === 'tg-bind') parse5.remove(el)
+      delete el.attribs[bindindAttr]
     }
     // attributes binding
     if (el.attribs) {
@@ -47,9 +53,14 @@ export async function tgBind(root) {
         const attr = bindAttr.substring(BIND_ATTRIBUTE_PREFIX.length)
         const attrContent = el.attribs[bindAttr]
         delete el.attribs[bindAttr]
-        const value = evaluate(attrContent, context)
-        if (value) {
-          el.attribs[attr] = value
+        try {
+          const value = evaluate(attrContent, context)
+          if (value != null) {
+            el.attribs[attr] = String(value)
+          }
+        } catch (error) {
+          // @ts-ignore
+          el.$tagelError = `[${attr}: ${attrContent}] ${error.message}`
         }
       }
     }

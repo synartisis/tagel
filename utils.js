@@ -3,14 +3,9 @@ import * as parse5 from './parse5.js'
 
 /** @type {(source: string, context: object) => any} */
 export function evaluate(source, context) {
-  // const f = new Function(...Object.keys(context), 'return ' + source)
-  try {
-    const f = new Function('data', 'return ' + source)
-    const value = f.call(context)
-    return value
-  } catch (error) {
-    // context.$tagel.errors.push(`[tagel evaluate error] "${error}"`)
-  }
+  const f = new Function('return ' + source)
+  const value = f.call(context)
+  return value
 }
 
 
