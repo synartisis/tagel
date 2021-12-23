@@ -6,7 +6,7 @@ export function evaluate(source, context) {
   // const f = new Function(...Object.keys(context), 'return ' + source)
   try {
     const f = new Function('data', 'return ' + source)
-    const value = f(context)
+    const value = f.call(context)
     return value
   } catch (error) {
     // context.$tagel.errors.push(`[tagel evaluate error] "${error}"`)
