@@ -170,3 +170,24 @@ export function createScriptElement(content) {
   append(scriptEl, scriptContent)
   return scriptEl
 }
+
+
+/** @type {(el: tagel.Node, contect: string) => void} */
+export function textContent(el, content) {
+  if (!el || content == null) throw new Error('missing parameter')
+  el.children = []
+  const textNode = createTextNode(content)
+  el.children.push(textNode)
+}
+
+
+/** @type {(el: tagel.Node, html: string) => void} */
+export function innerHTML(el, html) {
+  if (!el || html == null) throw new Error('missing parameter')
+  if (!(typeof html === 'string')) throw new TypeError('parse5.innerHTML: html param must be a string')
+  el.children = []
+  const fragment = parseFragment(html)
+  for (const child of fragment.children) {
+    append(el, child)
+  }
+}

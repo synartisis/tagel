@@ -1,6 +1,7 @@
 import * as parse5 from '../parse5.js'
 import { evaluate, getContext, findParent } from '../utils.js'
 
+const BINDING_ATTRS = ['tg-bind', 'tg-text', 'tg-html']
 const BIND_ATTRIBUTE_PREFIX = 'tg:'
 
 /**
@@ -11,7 +12,7 @@ const BIND_ATTRIBUTE_PREFIX = 'tg:'
 export async function tgBind(root) {
   if (!root) return 0
   const refs = parse5.qsa(root, el => 
-    !!el.attribs?.['tg-bind'] || 
+    !!el.attribs?.['tg-bind'] || !!el.attribs?.['tg-text'] || !!el.attribs?.['tg-html'] ||
     !!(el.attribs && Object.keys(el.attribs).find(k => k.startsWith(BIND_ATTRIBUTE_PREFIX)))
   ).filter(el => !findParent(el, par => !!par?.attribs?.['tg-for']))
   // skip nested tg-for elements to avoid missing context
@@ -20,21 +21,25 @@ export async function tgBind(root) {
   for (const el of refs) {
     const context = getContext(el)
     // content binding
-    const expression = el.attribs?.['tg-bind']
-    delete el.attribs?.['tg-bind']
-    if (expression) {
-      const value = evaluate(expression, context)
-      if (value != null) {
-        const fragment = parse5.parseFragment(String(value))
-        if (el.children) {
-          while (el.children.length > 0) {
-            parse5.remove(el.children[0])
-          } 
-          for (const child of fragment.children) {
-            parse5.append(el, child)
+    if (!el.attribs) return
+    const attrs = Object.keys(el.attribs)
+    const bingindAttr = BINDING_ATTRS.find(bAttr => attrs.includes(bAttr))
+    if (bingindAttr) {
+      const expression = el.attribs[bingindAttr]
+      if (expression) {
+        const value = evaluate(expression, context)
+        if (value != null) {
+          const sValue = String(value)
+          if (bingindAttr === 'tg-text') parse5.textContent(el, sValue)
+          if (bingindAttr === 'tg-html') parse5.innerHTML(el, sValue)
+          if (bingindAttr === 'tg-bind') {
+            const newEl = parse5.parseFragment(sValue)
+            newEl.children.forEach(child => parse5.insertBefore(child, el))
+            parse5.remove(el)
           }
         }
       }
+      delete el.attribs[bingindAttr]
     }
     // attributes binding
     if (el.attribs) {
