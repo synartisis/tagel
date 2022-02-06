@@ -37,19 +37,31 @@ if tg-if attribute value is falsy, it removes the element
 ### tg-for
 attribute value must be an array. It repeats the element (and subtree) and binds values based on array item
 ```html
-<div tg-for="items">
-  <div tg-bind="value1"></div>
+<div tg-for="this.items">
+  <div tg-bind="this.property1"></div>
 </div>
 ```
 
-### tg-bind 
-set the element's content to the evaluated value
+### tg-text 
+set the element's content to the evaluated value (textContent)
 ```html
-<div tg-bind="a_property"></div>
+<div tg-text="this.textProperty"></div>
+```
+
+### tg-html 
+set the element's inner html tree to the evaluated value (innerHTML)
+```html
+<div tg-html="this.htmlProperty"></div>
+```
+
+### tg-bind 
+replaces element with the evaluated value
+```html
+<div tg-bind="this.property"></div>
 ```
 
 ### Attribute Binding
 to bind a value to an attribute, prefix attribute name with ``` tg: ```
 ```html
-<a tg:href="a_property"></a>
+<a tg:href="this.imageUrl">...</a>
 ```

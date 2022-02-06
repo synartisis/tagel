@@ -21,9 +21,14 @@ export async function tgFor(root) {
     delete el.attribs?.['tg-for']
     delete el.attribs?.['tg-for-limit']
     if (!expression) continue
-    let value = evaluate(expression, context)
-    if (value == null) continue
-    if (!Array.isArray(value)) {
+    let value
+    try {
+      value = evaluate(expression, context)
+    } catch (error) {
+      // @ts-ignore
+      el.$tagelError = `[tg-for: ${expression}] ${error.message}`
+    }
+    if (value == null || !Array.isArray(value)) {
       el.$tagelError = `[tg-for] expression "${expression}" does not evaluate to array`
       continue
     }

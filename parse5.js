@@ -3,7 +3,9 @@ import htmlparser2Adapter from 'parse5-htmlparser2-tree-adapter'
 
 
 export function parseHtml(/** @type {string} */html) {
-  return parse5.parse(html, { treeAdapter: htmlparser2Adapter })
+  const doc = parse5.parse(html, { treeAdapter: htmlparser2Adapter })
+  patchTitleTag(doc)
+  return doc
 }
 
 
@@ -169,4 +171,44 @@ export function createScriptElement(content) {
   const scriptContent = createTextNode(content)
   append(scriptEl, scriptContent)
   return scriptEl
+}
+
+
+/** @type {(el: tagel.Node, contect: string) => void} */
+export function textContent(el, content) {
+  if (!el || content == null) throw new Error('missing parameter')
+  el.children = []
+  const textNode = createTextNode(content)
+  el.children.push(textNode)
+}
+
+
+/** @type {(el: tagel.Node, html: string) => void} */
+export function innerHTML(el, html) {
+  if (!el || html == null) throw new Error('missing parameter')
+  if (!(typeof html === 'string')) throw new TypeError('parse5.innerHTML: html param must be a string')
+  el.children = []
+  const fragment = parseFragment(html)
+  for (const child of fragment.children) {
+    append(el, child)
+  }
+}
+
+
+
+/**
+ * patches doc's <title> tag to accept html
+ * @param {htmlparser2Adapter.Document} doc 
+ */
+function patchTitleTag(doc) {
+  const titleTag = qs(doc, el => el.name === 'title')
+  if (titleTag) {
+    const titleTagChild = titleTag?.children?.[0]
+    if (titleTagChild?.data) {
+      for (const child of parseFragment(titleTagChild.data).children) {
+        append(titleTag, child)
+      }
+      remove(titleTagChild)
+    }
+  }
 }
