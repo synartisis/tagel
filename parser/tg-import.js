@@ -62,7 +62,7 @@ function rewritePartials(doc, relPath) {
     const attr = 'src' in el.attribs ? 'src' : 'href'
     const uri = el.attribs[attr]
     const ref = uri && uri.split('?')[0]
-    if (ref.split('/')[0].includes(':')) return  // if first part contains protocol, its absolute url: leave it alone
+    if (ref.startsWith('/') || ref.split('/')[0].includes(':')) return  // if its an absolute url, leave it alone
     const refNew = path.join(relPath, ref)
     el.attribs[attr] = refNew
   })
