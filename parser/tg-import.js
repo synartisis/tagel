@@ -62,9 +62,8 @@ function rewritePartials(doc, relPath) {
     const attr = 'src' in el.attribs ? 'src' : 'href'
     const uri = el.attribs[attr]
     const [ref, query] = uri && uri.split('?')
-    if (ref.startsWith('/') || ref.split('/')[0].includes(':')) return  // if its an absolute url, leave it alone
+    if (ref === '' || ref.startsWith('/') || ref.split('/')[0].includes(':')) return  // if its an absolute url or only query, leave it alone
     let refNew = path.join(relPath, ref)
-    if (refNew === '.') refNew = ''
     if (query) refNew += '?' + query
     el.attribs[attr] = refNew
   })
