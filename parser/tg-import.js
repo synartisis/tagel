@@ -1,5 +1,5 @@
 import path from 'node:path'
-import { readFile } from 'node:fs/promises'
+import fs from 'node:fs/promises'
 import * as parse5 from '../parse5.js'
 
 
@@ -20,14 +20,16 @@ export async function tgImport(root, filename) {
       if (href) {
         const partialPath = path.join(dirname, href)
         try {
-          content = await readFile(partialPath, 'utf-8')
-        } catch (/** @type {any} */error) {
-          if (error.code === 'ENOENT') {
-            const errorMessage = `cannot found ${path.relative('.', partialPath)} referenced by ${path.relative('.', filename)} (${href})`
-            ref.$tagelError = errorMessage
-          } else {
-            throw error
-          }
+          content = await fs.readFile(partialPath, 'utf-8')
+        } catch (error) {
+          const errorMessage = `cannot found ${path.relative('.', partialPath)} referenced by ${path.relative('.', filename)} (${href})`
+          ref.$tagelError = errorMessage
+          // if (error?.code === 'ENOENT') {
+          //   const errorMessage = `cannot found ${path.relative('.', partialPath)} referenced by ${path.relative('.', filename)} (${href})`
+          //   ref.$tagelError = errorMessage
+          // } else {
+          //   throw error
+          // }
         }
       }
       return { ref, href, content }
