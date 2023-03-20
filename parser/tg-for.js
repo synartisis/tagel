@@ -1,4 +1,4 @@
-import * as parse5 from '../parse5.js'
+import * as htmlParser from '../html-parser.js'
 import { evaluate, getContext, findParent } from '../utils.js'
 
 
@@ -9,7 +9,7 @@ import { evaluate, getContext, findParent } from '../utils.js'
  */
 export async function tgFor(root) {
   if (!root) return 0
-  const refs = parse5.qsa(root, el => !!el?.attribs?.['tg-for'])
+  const refs = htmlParser.qsa(root, el => !!el?.attribs?.['tg-for'])
     .filter(el => !findParent(el, par => !!par?.attribs?.['tg-for']))
     // skip nested tg-for elements to avoid missing context
   if (!refs.length) return 0
@@ -35,12 +35,12 @@ export async function tgFor(root) {
     if (limit !== -1) value = value.slice(0, limit)
     let lastEl = el
     for (const [$index, $item] of value.entries()) {
-      const itemTemplate = parse5.clone(el)
+      const itemTemplate = htmlParser.clone(el)
       itemTemplate.$context = $item
-      parse5.insertAfter(itemTemplate, lastEl)
+      htmlParser.insertAfter(itemTemplate, lastEl)
       lastEl = itemTemplate
     }
-    parse5.remove(el)
+    htmlParser.remove(el)
   }
   return refs.length
 }

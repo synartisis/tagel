@@ -1,4 +1,4 @@
-import * as parse5 from './parse5.js'
+import * as htmlParser from './html-parser.js'
 
 
 /** @type {(source: string, context: object) => any} */
@@ -27,32 +27,31 @@ export function findParent(el, predicate) {
 
 /** @type {(doc: tagel.Node, message: string) => void} */
 export function showError(doc, message) {
-  let tagelErrorEl = parse5.qs(doc, el => el.attribs?.id === 'tagel-error')
+  let tagelErrorEl = htmlParser.qs(doc, el => el.attribs?.id === 'tagel-error')
   if (!tagelErrorEl) {
-    tagelErrorEl = parse5.createElement('code', { id: 'tagel-error', style: styles.error })
-    const body = parse5.documentBody(doc)
-    if (body) parse5.append(body, tagelErrorEl)
+    tagelErrorEl = htmlParser.createElement('code', { id: 'tagel-error', style: styles.error })
+    const body = htmlParser.documentBody(doc)
+    if (body) htmlParser.append(body, tagelErrorEl)
   }
-  const errorEl = parse5.createElement('div')
-  parse5.append(errorEl, parse5.createTextNode(message))
-  parse5.append(tagelErrorEl, errorEl)
+  const errorEl = htmlParser.createElement('div')
+  htmlParser.append(errorEl, htmlParser.createTextNode(message))
+  htmlParser.append(tagelErrorEl, errorEl)
 }
 
 
 /** @type {(doc: tagel.Node, errors: string[]) => void} */
 export function showErrors(doc, errors) {
   if (!errors.length) return
-  let tagelErrorEl = parse5.qs(doc, el => el.attribs?.id === 'tagel-error')
+  let tagelErrorEl = htmlParser.qs(doc, el => el.attribs?.id === 'tagel-error')
   if (!tagelErrorEl) {
-    tagelErrorEl = parse5.createElement('code', { id: 'tagel-error', style: styles.error })
-    const body = parse5.documentBody(doc)
-    if (body) parse5.append(body, tagelErrorEl)
+    tagelErrorEl = htmlParser.createElement('code', { id: 'tagel-error', style: styles.error })
+    const body = htmlParser.documentBody(doc)
+    if (body) htmlParser.append(body, tagelErrorEl)
   }
   errors.forEach(error => {
-    const errorEl = parse5.createElement('div')
-    parse5.append(errorEl, parse5.createTextNode(error))
-    // @ts-ignore
-    parse5.append(tagelErrorEl, errorEl)
+    const errorEl = htmlParser.createElement('div')
+    htmlParser.append(errorEl, htmlParser.createTextNode(error))
+    if (tagelErrorEl) htmlParser.append(tagelErrorEl, errorEl)
   })
 }
 

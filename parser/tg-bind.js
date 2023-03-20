@@ -1,4 +1,4 @@
-import * as parse5 from '../parse5.js'
+import * as htmlParser from '../html-parser.js'
 import { evaluate, getContext, findParent } from '../utils.js'
 
 const BINDING_ATTRS = ['tg-bind', 'tg-text', 'tg-html']
@@ -11,7 +11,7 @@ const BIND_ATTRIBUTE_PREFIX = 'tg:'
  */
 export async function tgBind(root) {
   if (!root) return 0
-  const refs = parse5.qsa(root, el => 
+  const refs = htmlParser.qsa(root, el => 
     !!el.attribs?.['tg-bind'] || !!el.attribs?.['tg-text'] || !!el.attribs?.['tg-html'] ||
     !!(el.attribs && Object.keys(el.attribs).find(k => k.startsWith(BIND_ATTRIBUTE_PREFIX)))
   ).filter(el => !findParent(el, par => !!par?.attribs?.['tg-for']))
@@ -36,15 +36,15 @@ export async function tgBind(root) {
           el.$tagelError = `[${bindindAttr}: ${expression}] ${error.message}`
         }
         if (result) {
-          if (bindindAttr === 'tg-text') parse5.textContent(el, result)
-          if (bindindAttr === 'tg-html') parse5.innerHTML(el, result)
+          if (bindindAttr === 'tg-text') htmlParser.textContent(el, result)
+          if (bindindAttr === 'tg-html') htmlParser.innerHTML(el, result)
           if (bindindAttr === 'tg-bind') {
-            const newEl = parse5.parseFragment(result)
-            newEl.children.forEach(child => parse5.insertBefore(child, el))
+            const newEl = htmlParser.parseFragment(result)
+            newEl.children?.forEach(child => htmlParser.insertBefore(child, el))
           }
         }
       }
-      if (bindindAttr === 'tg-bind') parse5.remove(el)
+      if (bindindAttr === 'tg-bind') htmlParser.remove(el)
       delete el.attribs[bindindAttr]
     }
     // attributes binding

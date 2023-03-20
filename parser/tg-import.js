@@ -1,6 +1,6 @@
 import path from 'node:path'
 import fs from 'node:fs/promises'
-import * as parse5 from '../parse5.js'
+import * as htmlParser from '../html-parser.js'
 
 
 /**
@@ -10,7 +10,7 @@ import * as parse5 from '../parse5.js'
  * @returns {Promise<number>}
  */
 export async function tgImport(root, filename) {
-  const refs = parse5.qsa(root, el => el.name === 'link' && el.attribs?.['rel'] === 'import')
+  const refs = htmlParser.qsa(root, el => el.name === 'link' && el.attribs?.['rel'] === 'import')
   if (!refs.length) return 0
   const dirname = path.dirname(filename)
   const partials = await Promise.all(refs.map(
@@ -37,15 +37,15 @@ export async function tgImport(root, filename) {
   ))
   for (const partial of partials) {
     if (!partial.content || !partial.href) continue
-    const partialDoc = parse5.parseFragment(partial.content)
+    const partialDoc = htmlParser.parseFragment(partial.content)
     const partialDir = path.dirname(partial.href)
     rewritePartials(partialDoc, partialDir)
     let insertAfterEl = partial.ref
-    partialDoc.children.forEach(child => {
-      parse5.insertAfter(child, insertAfterEl)
+    partialDoc.children?.forEach(child => {
+      htmlParser.insertAfter(child, insertAfterEl)
       insertAfterEl = child
     })
-    parse5.remove(partial.ref)
+    htmlParser.remove(partial.ref)
   }
   return refs.length
 }
@@ -54,7 +54,7 @@ export async function tgImport(root, filename) {
 
 /** @type {(doc: tagel.Node, relPath: string) => void} */
 function rewritePartials(doc, relPath) {
-  const partialRefs = parse5.qsa(doc, el => [ 'script', 'link', 'img', 'a' ].includes(el.name))
+  const partialRefs = htmlParser.qsa(doc, el => [ 'script', 'link', 'img', 'a' ].includes(el.name))
   partialRefs.map(async el => {
     if (!el.attribs) return
     if (el.name === 'script' && !el.attribs['src']) return

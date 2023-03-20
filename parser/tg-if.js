@@ -1,4 +1,4 @@
-import * as parse5 from '../parse5.js'
+import * as htmlParser from '../html-parser.js'
 import { evaluate, getContext, findParent } from '../utils.js'
 
 
@@ -10,7 +10,7 @@ import { evaluate, getContext, findParent } from '../utils.js'
  */
 export async function tgIf(root) {
   if (!root) return 0
-  const refs = parse5.qsa(root, el => !!el?.attribs?.['tg-if'])
+  const refs = htmlParser.qsa(root, el => !!el?.attribs?.['tg-if'])
     .filter(el => !findParent(el, par => !!par?.attribs?.['tg-for']))
     // skip nested tg-for elements to avoid missing context
   if (!refs.length) return 0
@@ -22,7 +22,7 @@ export async function tgIf(root) {
     try {
       const value = evaluate(expression, context)
       if (!value) {
-        parse5.remove(el)
+        htmlParser.remove(el)
       } else {
         delete el.attribs?.['tg-if']
       }

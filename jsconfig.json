@@ -3,6 +3,7 @@
     "checkJs": true,
     "strict": true,
     "target": "ESNext",
-    "module": "ESNext"
+    "module": "ESNext",
+    "moduleResolution": "nodenext"
   }
 }

@@ -1,10 +1,10 @@
 export async function tagel(html: string, filename: string, context: object): string
-
+export * as htmlParser from './html-parser.js'
 
 
 declare global {
   namespace tagel {
-    
+
     type NodeTypes = 'tag' | 'text' | 'directive' | 'root' | 'script'
     
     interface Node {

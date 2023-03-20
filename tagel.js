@@ -1,9 +1,9 @@
-import path from 'path'
-import { readFile, stat } from 'fs/promises'
-import * as parse5 from './parse5.js'
+import path from 'node:path'
+import fs from 'node:fs/promises'
+import * as htmlParser from './html-parser.js'
 import { applyTagel } from './parser/tagel-parser.js'
 
-export { parse5, applyTagel }
+export { htmlParser, applyTagel }
 
 
 /**
@@ -14,9 +14,9 @@ export { parse5, applyTagel }
  * @returns {Promise<string>}
  */
 export async function tagel(html, filename, context) {
-  const doc = parse5.parseHtml(html)
+  const doc = htmlParser.parseHtml(html)
   await applyTagel(doc, filename, context)
-  return parse5.serialize(doc)
+  return htmlParser.serialize(doc)
 }
 
 
@@ -26,9 +26,9 @@ export function tagelExpress(root, {} = {}) {
   return async (req, res, next) => {
     const { filename, content } = await readFileContent(root, req.url)
     if (content !== undefined) {
-      const doc = parse5.parseHtml(content)
+      const doc = htmlParser.parseHtml(content)
       await applyTagel(doc, filename, req.tgContext)
-      return res.send(parse5.serialize(doc))
+      return res.send(htmlParser.serialize(doc))
     }
     return next()
   }
@@ -44,7 +44,7 @@ async function readFileContent(root, url) {
   if (fileext === '') {
     let filestat
     try {
-      filestat = await stat(filename)
+      filestat = await fs.stat(filename)
     } catch (error) {}
     if (filestat?.isDirectory()) return readFileContent(root, path.join(fileUrl, 'index.html'))
     return readFileContent(root, fileUrl + '.html')
@@ -52,7 +52,7 @@ async function readFileContent(root, url) {
   if (fileext === '.html') {
     let content
     try {
-      content = await readFile(filename, 'utf-8')
+      content = await fs.readFile(filename, 'utf-8')
     } catch (error) {}
     return { filename, content }
   }

@@ -1,21 +1,34 @@
-import parse5, { parse } from 'parse5'
-import htmlparser2Adapter from 'parse5-htmlparser2-tree-adapter'
+import * as htmlparser2 from 'htmlparser2'
+import serializer from 'dom-serializer'
 
 
-export function parseHtml(/** @type {string} */html) {
-  const doc = parse5.parse(html, { treeAdapter: htmlparser2Adapter })
+/** 
+ * @param {string} html 
+ * @returns {tagel.Node}
+*/
+export function parseHtml(html) {
+  const doc = htmlparser2.parseDocument(html)
+  // @ts-ignore
   patchTitleTag(doc)
+  // @ts-ignore
   return doc
 }
 
 
-export function parseFragment(/** @type {string} */html) {
-  return parse5.parseFragment(html, { treeAdapter: htmlparser2Adapter })
+/** 
+ * @param {string} html 
+ * @returns {tagel.Node}
+*/
+export function parseFragment(html) {
+  // @ts-ignore
+  return htmlparser2.parseDocument(html)
 }
 
 
-export function serialize(/** @type {htmlparser2Adapter.Node} */document) {
-  return parse5.serialize(document, { treeAdapter: htmlparser2Adapter })
+/** @param {tagel.Node} document */
+export function serialize(document) {
+  // @ts-ignore
+  return serializer(document)
 }
 
 
@@ -51,7 +64,9 @@ export function serialize(/** @type {htmlparser2Adapter.Node} */document) {
  */
 export function qsa(root, predicate, res = []) {
   if (predicate(root)) res.push(root)
-  if (root.children) root.children.forEach(child => qsa(child, predicate, res))
+  if (root.children) root.children.forEach(child => {
+    qsa(child, predicate, res)
+  })
   return res
 }
 
@@ -59,7 +74,7 @@ export function qsa(root, predicate, res = []) {
 /**
  * walks throught the dom and applies fn
  * @param {tagel.Node} root 
- * @param {Function} fn 
+ * @param {(el: tagel.Node) => void} fn 
  */
 export async function walk(root, fn) {
   await fn(root)
@@ -160,7 +175,8 @@ export function clone(el) {
 }
 
 
-export function documentBody(/** @type {tagel.Node} */document) {
+/** @param {tagel.Node} document */
+export function documentBody(document) {
   return qs(document, el => el.name === 'body')
 }
 
@@ -189,8 +205,10 @@ export function innerHTML(el, html) {
   if (!(typeof html === 'string')) throw new TypeError('parse5.innerHTML: html param must be a string')
   el.children = []
   const fragment = parseFragment(html)
-  for (const child of fragment.children) {
-    append(el, child)
+  if (fragment.children) {
+    for (const child of fragment.children) {
+      append(el, child)
+    }
   }
 }
 
@@ -198,14 +216,14 @@ export function innerHTML(el, html) {
 
 /**
  * patches doc's <title> tag to accept html
- * @param {htmlparser2Adapter.Document} doc 
+ * @param {tagel.Node} doc 
  */
 function patchTitleTag(doc) {
   const titleTag = qs(doc, el => el.name === 'title')
   if (titleTag) {
     const titleTagChild = titleTag?.children?.[0]
     if (titleTagChild?.data) {
-      for (const child of parseFragment(titleTagChild.data).children) {
+      for (const child of parseFragment(titleTagChild.data)?.children ?? []) {
         append(titleTag, child)
       }
       remove(titleTagChild)
