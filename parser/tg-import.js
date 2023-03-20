@@ -22,7 +22,7 @@ export async function tgImport(root, filename) {
         try {
           content = await fs.readFile(partialPath, 'utf-8')
         } catch (error) {
-          const errorMessage = `cannot found ${path.relative('.', partialPath)} referenced by ${path.relative('.', filename)} (${href})`
+          const errorMessage = `cannot find ${path.relative('.', partialPath)} referenced by ${path.relative('.', filename)} (${href})`
           ref.$tagelError = errorMessage
           // if (error?.code === 'ENOENT') {
           //   const errorMessage = `cannot found ${path.relative('.', partialPath)} referenced by ${path.relative('.', filename)} (${href})`
@@ -58,7 +58,7 @@ function rewritePartials(doc, relPath) {
   partialRefs.map(async el => {
     if (!el.attribs) return
     if (el.name === 'script' && !el.attribs['src']) return
-    if (el.name === 'link' && el.attribs['rel'] !== 'stylesheet' && !el.attribs['rel'].includes('icon')) return
+    if (el.name === 'link' && el.attribs['rel'] !== 'stylesheet' && el.attribs['rel'] !== 'import' && !el.attribs['rel'].includes('icon')) return
     if (el.name === 'img' && !el.attribs['src']) return
     if (el.name === 'a' && !el.attribs['href']) return
     const attr = 'src' in el.attribs ? 'src' : 'href'
