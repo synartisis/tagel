@@ -12,6 +12,7 @@ import * as htmlParser from '../html-parser.js'
 export async function tgImport(root, filename) {
   const refs = htmlParser.qsa(root, el => el.name === 'link' && el.attribs?.['rel'] === 'import')
   if (!refs.length) return 0
+  let errorCount = 0
   const dirname = path.dirname(filename)
   const partials = await Promise.all(refs.map(
     async ref => {
@@ -21,15 +22,14 @@ export async function tgImport(root, filename) {
         const partialPath = path.join(dirname, href)
         try {
           content = await fs.readFile(partialPath, 'utf-8')
-        } catch (error) {
-          const errorMessage = `cannot find ${path.relative('.', partialPath)} referenced by ${path.relative('.', filename)} (${href})`
-          ref.$tagelError = errorMessage
-          // if (error?.code === 'ENOENT') {
-          //   const errorMessage = `cannot found ${path.relative('.', partialPath)} referenced by ${path.relative('.', filename)} (${href})`
-          //   ref.$tagelError = errorMessage
-          // } else {
-          //   throw error
-          // }
+        } catch (/**@type {any}*/error) {
+          if (error?.code === 'ENOENT') {
+            const errorMessage = `cannot find ${path.relative('.', partialPath)} referenced by ${path.relative('.', filename)} (${href})`
+            ref.$tagelError = errorMessage
+            errorCount ++
+          } else {
+            throw error
+          }
         }
       }
       return { ref, href, content }
@@ -47,7 +47,7 @@ export async function tgImport(root, filename) {
     })
     htmlParser.remove(partial.ref)
   }
-  return refs.length
+  return refs.length - errorCount
 }
 
   
