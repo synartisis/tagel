@@ -14,9 +14,7 @@ export { htmlParser, applyTagel }
  * @returns {Promise<string>}
  */
 export async function tagel(html, filename, context) {
-  const doc = htmlParser.parseHtml(html)
-  await applyTagel(doc, filename, context)
-  return htmlParser.serialize(doc)
+  return await applyTagel(html, filename, context)
 }
 
 
@@ -26,9 +24,7 @@ export function tagelExpress(root, {} = {}) {
   return async (req, res, next) => {
     const { filename, content } = await readFileContent(root, req.url)
     if (content !== undefined) {
-      const doc = htmlParser.parseHtml(content)
-      await applyTagel(doc, filename, req.tgContext)
-      return res.send(htmlParser.serialize(doc))
+      return await applyTagel(content, filename, req.tgContext)
     }
     return next()
   }
