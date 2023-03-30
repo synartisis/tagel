@@ -10,21 +10,27 @@ export async function bracketBind(source, context, errors) {
   for (const match of matches) {
     const expression = match.groups?.expression
     if (!expression || !match.index) continue
-    // console.debug({expression},evaluate(expression, context))
-    if (expression) {
-      let value
-      try {
-        value = evaluate(expression, context)
-      } catch (/**@type {any}*/ error) {
-        // console.error(error)
-        errors.push(`[bracket-binding: ${expression}] ${error.message}`)
-        continue
+    let value
+    try {
+      value = evaluate(expression, context)
+      if (value === undefined) {
+        console.log(isInBody(match), match.groups?.expression)
+        // console.log(match.input)
+        // console.log(match.input.substring(0, match.index))
+        value = `<span class="tagel-error"><em>ERROR:</em> cannot find: ${expression}</span>`
+        errors.push(`[bracket-binding: ${expression}]`)
       }
-      if (value !== undefined) {
-        content = content.replace(match[0], String(value))
-      }
+      content = content.replace(match[0], String(value))
+    } catch (/**@type {any}*/ error) {
+      errors.push(`[bracket-binding: ${expression}] ${error.message}`)
+      continue
     }
   }
 
   return content
+}
+
+
+function isInBody(match) {
+  return match.input.substring(0, match.index).includes('</head>')
 }

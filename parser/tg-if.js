@@ -1,4 +1,4 @@
-import * as htmlParser from '../html-parser.js'
+import * as html from '@synartisis/htmlparser'
 import { evaluate, getContext, findParent } from '../utils.js'
 
 
@@ -6,7 +6,7 @@ import { evaluate, getContext, findParent } from '../utils.js'
 /** @type {(root: tagel.Node, errors: string[]) => Promise<number>} */
 export async function tgIf(root, errors) {
   if (!root) return 0
-  const refs = htmlParser.qsa(root, el => !!el?.attribs?.['tg-if'])
+  const refs = html.qsa(root, el => !!el?.attribs?.['tg-if'])
     .filter(el => !findParent(el, par => !!par?.attribs?.['tg-for']))
     // skip nested tg-for elements to avoid missing context
   if (!refs.length) return 0
@@ -18,7 +18,7 @@ export async function tgIf(root, errors) {
     try {
       const value = evaluate(expression, context)
       if (!value) {
-        htmlParser.remove(el)
+        html.remove(el)
       } else {
         delete el.attribs?.['tg-if']
       }

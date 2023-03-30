@@ -1,4 +1,4 @@
-import * as htmlParser from '../html-parser.js'
+import * as html from '@synartisis/htmlparser'
 import { evaluate, getContext, findParent } from '../utils.js'
 
 const BINDING_ATTRS = ['tg-bind', 'tg-text', 'tg-html']
@@ -12,7 +12,7 @@ const BIND_ATTRIBUTE_PREFIX = 'tg:'
  */
 export async function tgBind(root, errors) {
   if (!root) return 0
-  const refs = htmlParser.qsa(root, el => 
+  const refs = html.qsa(root, el => 
     !!el.attribs?.['tg-bind'] || !!el.attribs?.['tg-text'] || !!el.attribs?.['tg-html'] ||
     !!(el.attribs && Object.keys(el.attribs).find(k => k.startsWith(BIND_ATTRIBUTE_PREFIX)))
   ).filter(el => !findParent(el, par => !!par?.attribs?.['tg-for']))
@@ -37,15 +37,15 @@ export async function tgBind(root, errors) {
           errors.push(`[${bindindAttr}: ${expression}] ${error.message}`)
         }
         if (result) {
-          if (bindindAttr === 'tg-text') htmlParser.textContent(el, result)
-          if (bindindAttr === 'tg-html') htmlParser.innerHTML(el, result)
+          if (bindindAttr === 'tg-text') html.insertText(el, result)
+          if (bindindAttr === 'tg-html') html.innerHTML(el, result)
           if (bindindAttr === 'tg-bind') {
-            const newEl = htmlParser.parseFragment(result)
-            newEl.children?.forEach(child => htmlParser.insertBefore(child, el))
+            const newEl = html.parseFragment(result)
+            newEl.children?.forEach(child => html.insertBefore(child, el))
           }
         }
       }
-      if (bindindAttr === 'tg-bind') htmlParser.remove(el)
+      if (bindindAttr === 'tg-bind') html.remove(el)
       delete el.attribs[bindindAttr]
     }
     // attributes binding

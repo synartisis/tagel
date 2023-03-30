@@ -1,6 +1,6 @@
 import path from 'node:path'
 import fs from 'node:fs/promises'
-import * as htmlParser from './html-parser.js'
+import * as htmlParser from '@synartisis/htmlparser'
 import { applyTagel } from './parser/tagel-parser.js'
 
 export { htmlParser, applyTagel }

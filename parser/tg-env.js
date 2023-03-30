@@ -1,4 +1,4 @@
-import * as htmlParser from '../html-parser.js'
+import * as html from '@synartisis/htmlparser'
 
 
 /**
@@ -9,11 +9,11 @@ import * as htmlParser from '../html-parser.js'
  */
 export async function tgEnv(root, currentEnv) {
   if (!root) return 0
-  const refs = htmlParser.qsa(root, el => !!el.attribs?.['tg-env'])
+  const refs = html.qsa(root, el => !!el.attribs?.['tg-env'])
   if (!refs.length) return 0
   for (const el of refs) {
     if (el.attribs?.['tg-env'] !== currentEnv) {
-      htmlParser.remove(el)
+      html.remove(el)
     } else {
       delete el.attribs['tg-env']
     }

@@ -1,4 +1,4 @@
-import * as htmlParser from '../html-parser.js'
+import * as html from '@synartisis/htmlparser'
 
 
 /**
@@ -9,11 +9,11 @@ import * as htmlParser from '../html-parser.js'
  */
 export async function tgLang(root, lang) {
   if (!root || !lang) return 0
-  const refs = htmlParser.qsa(root, el => !!el?.attribs?.['lang'])
+  const refs = html.qsa(root, el => !!el?.attribs?.['lang'])
   if (!refs.length) return 0
   for (const el of refs) {
     if (el.attribs?.['lang'] !== lang) {
-      htmlParser.remove(el)
+      html.remove(el)
     } else {
       delete el.attribs['lang']
     }

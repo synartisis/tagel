@@ -1,6 +1,6 @@
 import path from 'node:path'
 import fs from 'node:fs/promises'
-import * as htmlParser from '../html-parser.js'
+import * as html from '@synartisis/htmlparser'
 
 
 /**
@@ -8,7 +8,7 @@ import * as htmlParser from '../html-parser.js'
  * @type {(root: tagel.Node, filename: string, errors: string[]) => Promise<number>}
  */
 export async function tgImport(root, filename, errors) {
-  const refs = htmlParser.qsa(root, el => el.name === 'link' && el.attribs?.['rel'] === 'import')
+  const refs = html.qsa(root, el => el.name === 'link' && el.attribs?.['rel'] === 'import')
   if (!refs.length) return 0
   let errorCount = 0
   const dirname = path.dirname(filename)
@@ -34,15 +34,15 @@ export async function tgImport(root, filename, errors) {
   ))
   for (const partial of partials) {
     if (!partial.content || !partial.href) continue
-    const partialDoc = htmlParser.parseFragment(partial.content)
+    const partialDoc = html.parseFragment(partial.content)
     const partialDir = path.dirname(partial.href)
     rewritePartials(partialDoc, partialDir)
     let insertAfterEl = partial.ref
     partialDoc.children?.forEach(child => {
-      htmlParser.insertAfter(child, insertAfterEl)
+      html.insertAfter(child, insertAfterEl)
       insertAfterEl = child
     })
-    htmlParser.remove(partial.ref)
+    html.remove(partial.ref)
   }
   return refs.length - errorCount
 }
@@ -51,7 +51,7 @@ export async function tgImport(root, filename, errors) {
 
 /** @type {(doc: tagel.Node, relPath: string) => void} */
 function rewritePartials(doc, relPath) {
-  const partialRefs = htmlParser.qsa(doc, el => [ 'script', 'link', 'img', 'a' ].includes(el.name))
+  const partialRefs = html.qsa(doc, el => [ 'script', 'link', 'img', 'a' ].includes(el.name))
   partialRefs.map(async el => {
     if (!el.attribs) return
     if (el.name === 'script' && !el.attribs['src']) return
