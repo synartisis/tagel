@@ -18,7 +18,9 @@ const LOOP_THRESHOLD = 30
  */
 export async function applyTagel(source, filename, context = {}) {
 
-  let doc = htmlParser.parseHtml(source)
+  /** @type {string[]} */
+  const errors = []
+  const doc = htmlParser.parseHtml(source)
   const lang = applyLang(doc, context)
 
   doc.$context = context
@@ -29,35 +31,34 @@ export async function applyTagel(source, filename, context = {}) {
     changes = 0
 
     changes += await tgEnv(doc, env)
-    changes += await tgImport(doc, filename)
+    changes += await tgImport(doc, filename, errors)
     changes += await tgLang(doc, lang)
-    changes += await tgFor(doc)
-    changes += await tgIf(doc)
-    changes += await tgBind(doc)
+    changes += await tgFor(doc, errors)
+    changes += await tgIf(doc, errors)
+    changes += await tgBind(doc, errors)
     
     // console.debug({changes})
   } while (changes > 0 && loops < LOOP_THRESHOLD)
   // console.debug({ loops })
 
-  const content = htmlParser.serialize(doc)
-  const { content: bracketsContent, errors: bracketErrors } = await bracketBind(content, context)
+  const contentAfterTagelTags = htmlParser.serialize(doc)
+  const content = await bracketBind(contentAfterTagelTags, context, errors)
 
-  doc = htmlParser.parseHtml(bracketsContent)
-  handleErrors(doc, bracketErrors)
+  if (errors.length > 0) {
+    const contentWithErrors = handleErrors(content, errors)
+    return contentWithErrors
+  }
 
-  return htmlParser.serialize(doc)
-
+  return content
 }
 
 
-/** @type {(doc: tagel.Node, bracketErrors: string[]) => void} */
-function handleErrors(doc, bracketErrors) {
-  const errorRefs = htmlParser.qsa(doc, el => !!el.$tagelError)
-  if (!errorRefs.length && !bracketErrors.length) return 
-  const tgErrors = errorRefs.map(ref => ref.$tagelError || '')
-  const errors = [...tgErrors, ...bracketErrors]
+/** @type {(content: string, errors: string[]) => string} */
+function handleErrors(content, errors) {
+  const doc = htmlParser.parseHtml(content)
   if (env === 'development') showErrors(doc, errors)
   errors.forEach(err => console.error('[tagel error]', err))
+  return htmlParser.serialize(doc)
 }
 
 

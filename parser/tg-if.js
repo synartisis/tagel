@@ -3,12 +3,8 @@ import { evaluate, getContext, findParent } from '../utils.js'
 
 
 
-/**
- * removes elements (with children) when the expression evaluates to false
- * @param {tagel.Node} root
- * @returns {Promise<number>}
- */
-export async function tgIf(root) {
+/** @type {(root: tagel.Node, errors: string[]) => Promise<number>} */
+export async function tgIf(root, errors) {
   if (!root) return 0
   const refs = htmlParser.qsa(root, el => !!el?.attribs?.['tg-if'])
     .filter(el => !findParent(el, par => !!par?.attribs?.['tg-for']))
@@ -28,7 +24,7 @@ export async function tgIf(root) {
       }
     } catch (error) {
       // @ts-ignore
-      el.$tagelError = `[tg-if: ${expression}] ${error.message}`
+      errors.push(`[tg-if: ${expression}] ${error.message}`)
     }
   }
   return refs.length

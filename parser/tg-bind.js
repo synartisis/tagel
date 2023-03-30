@@ -7,9 +7,10 @@ const BIND_ATTRIBUTE_PREFIX = 'tg:'
 /**
  * binds element content and attributes
  * @param {tagel.Node} root 
+ * @param {string[]} errors 
  * 
  */
-export async function tgBind(root) {
+export async function tgBind(root, errors) {
   if (!root) return 0
   const refs = htmlParser.qsa(root, el => 
     !!el.attribs?.['tg-bind'] || !!el.attribs?.['tg-text'] || !!el.attribs?.['tg-html'] ||
@@ -30,10 +31,10 @@ export async function tgBind(root) {
         let result
         try {
           const value = evaluate(expression, context)
-          if (value != null) result = String(value)
+          if (value !== undefined) result = String(value)
         } catch (error) {
           // @ts-ignore
-          el.$tagelError = `[${bindindAttr}: ${expression}] ${error.message}`
+          errors.push(`[${bindindAttr}: ${expression}] ${error.message}`)
         }
         if (result) {
           if (bindindAttr === 'tg-text') htmlParser.textContent(el, result)
@@ -55,12 +56,12 @@ export async function tgBind(root) {
         delete el.attribs[bindAttr]
         try {
           const value = evaluate(attrContent, context)
-          if (value != null) {
+          if (value !== undefined) {
             el.attribs[attr] = String(value)
           }
         } catch (error) {
           // @ts-ignore
-          el.$tagelError = `[${attr}: ${attrContent}] ${error.message}`
+          errors.push(`[${attr}: ${attrContent}] ${error.message}`)
         }
       }
     }

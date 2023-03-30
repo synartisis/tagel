@@ -5,11 +5,9 @@ import * as htmlParser from '../html-parser.js'
 
 /**
  * imports html partials
- * @param {tagel.Node} root 
- * @param {string} filename
- * @returns {Promise<number>}
+ * @type {(root: tagel.Node, filename: string, errors: string[]) => Promise<number>}
  */
-export async function tgImport(root, filename) {
+export async function tgImport(root, filename, errors) {
   const refs = htmlParser.qsa(root, el => el.name === 'link' && el.attribs?.['rel'] === 'import')
   if (!refs.length) return 0
   let errorCount = 0
@@ -24,8 +22,7 @@ export async function tgImport(root, filename) {
           content = await fs.readFile(partialPath, 'utf-8')
         } catch (/**@type {any}*/error) {
           if (error?.code === 'ENOENT') {
-            const errorMessage = `cannot find ${path.relative('.', partialPath)} referenced by ${path.relative('.', filename)} (${href})`
-            ref.$tagelError = errorMessage
+            errors.push(`cannot find ${path.relative('.', partialPath)} referenced by ${path.relative('.', filename)} (${href})`)
             errorCount ++
           } else {
             throw error

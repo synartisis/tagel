@@ -4,10 +4,9 @@ import { evaluate, getContext, findParent } from '../utils.js'
 
 /**
  * repeats a template, once for each item oa an array
- * @param {tagel.Node} root 
- * @returns {Promise<number>}
+ * @type {(root: tagel.Node, errors: string[]) => Promise<number>}
  */
-export async function tgFor(root) {
+export async function tgFor(root, errors) {
   if (!root) return 0
   const refs = htmlParser.qsa(root, el => !!el?.attribs?.['tg-for'])
     .filter(el => !findParent(el, par => !!par?.attribs?.['tg-for']))
@@ -26,10 +25,10 @@ export async function tgFor(root) {
       value = evaluate(expression, context)
     } catch (error) {
       // @ts-ignore
-      el.$tagelError = `[tg-for: ${expression}] ${error.message}`
+      errors.push(`[tg-for: ${expression}] ${error.message}`)
     }
-    if (value == null || !Array.isArray(value)) {
-      el.$tagelError = `[tg-for] expression "${expression}" does not evaluate to array`
+    if (value === undefined || !Array.isArray(value)) {
+      errors.push(`[tg-for] expression "${expression}" does not evaluate to array`)
       continue
     }
     if (limit !== -1) value = value.slice(0, limit)

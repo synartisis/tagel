@@ -2,10 +2,9 @@ import { evaluate } from '../utils.js'
 
 const reBrackets = /\[\[\s*(?<expression>.+?)\s*\]\]/g
 
-/** @type {(source: string, context: any) => Promise<{ content: string, errors: string[] }>}>} */
-export async function bracketBind(source, context) {
+/** @type {(source: string, context: any, errors: string[]) => Promise<string>}>} */
+export async function bracketBind(source, context, errors) {
   let content = source
-  const errors = []
 
   const matches = source.matchAll(reBrackets)
   for (const match of matches) {
@@ -13,7 +12,7 @@ export async function bracketBind(source, context) {
     if (!expression || !match.index) continue
     // console.debug({expression},evaluate(expression, context))
     if (expression) {
-      let value = null
+      let value
       try {
         value = evaluate(expression, context)
       } catch (/**@type {any}*/ error) {
@@ -21,12 +20,11 @@ export async function bracketBind(source, context) {
         errors.push(`[bracket-binding: ${expression}] ${error.message}`)
         continue
       }
-      if (value != null) {
-        const result = String(value)
-        content = content.replace(match[0], result)
+      if (value !== undefined) {
+        content = content.replace(match[0], String(value))
       }
     }
   }
 
-  return { content, errors }
+  return content
 }
