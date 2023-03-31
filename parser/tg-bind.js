@@ -6,7 +6,7 @@ const BIND_ATTRIBUTE_PREFIX = 'tg:'
 
 /**
  * binds element content and attributes
- * @param {html.Document | html.Element} root 
+ * @param {html.domhandler.Document | html.domhandler.Element} root 
  * @param {string[]} errors 
  * 
  */

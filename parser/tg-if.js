@@ -2,7 +2,7 @@ import * as html from '@synartisis/htmlparser'
 import { evaluate, getContext, findMatchingParent } from '../utils.js'
 
 
-/** @type {(root: html.Document | html.Element, errors: string[]) => Promise<number>} */
+/** @type {(root: html.domhandler.Document | html.domhandler.Element, errors: string[]) => Promise<number>} */
 export async function tgIf(root, errors) {
   let changes = 0
   if (!root) return changes

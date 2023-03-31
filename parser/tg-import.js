@@ -5,7 +5,7 @@ import * as html from '@synartisis/htmlparser'
 
 /**
  * imports html partials
- * @type {(root: html.Document | html.Element, filename: string, errors: string[]) => Promise<number>}
+ * @type {(root: html.domhandler.Document | html.domhandler.Element, filename: string, errors: string[]) => Promise<number>}
  */
 export async function tgImport(root, filename, errors) {
   const refs = html.qsa(root, el => el.type === 'tag' && el.name === 'link' && el.attribs['rel'] === 'import')
@@ -39,7 +39,6 @@ export async function tgImport(root, filename, errors) {
     const partialDoc = html.parseFragment(partial.content, host)
     const partialDir = path.dirname(partial.href)
     rewritePartials(partialDoc, partialDir)
-    /** @type {html.Node} */
     let insertAfterEl = partial.ref
     partialDoc.children.forEach(child => {
       // if (child.type !== 'tag' && child.type !== 'text') return
@@ -53,7 +52,7 @@ export async function tgImport(root, filename, errors) {
 
   
 
-/** @type {(doc: html.Element | html.Document, relPath: string) => void} */
+/** @type {(doc: html.domhandler.Document | html.domhandler.Element, relPath: string) => void} */
 function rewritePartials(doc, relPath) {
   const partialRefs = html.qsa(doc, el => [ 'script', 'link', 'img', 'a' ].includes(el.name))
   partialRefs.map(async el => {

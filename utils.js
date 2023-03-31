@@ -11,13 +11,13 @@ export function evaluate(source, context) {
   return value
 }
 
-/** @type {(el: html.Element | html.Document, context: any) => void} */
+/** @type {(el: html.domhandler.Element | html.domhandler.Document, context: any) => void} */
 export function setContext(el, context) {
   scopes.set(el, context)
 }
 
 
-/** @type {(el: html.Element | html.Document) => any} */
+/** @type {(el: html.domhandler.Element | html.domhandler.Document) => any} */
 export function getContext(el) {
   const context = scopes.get(el)
   if (context) return context
@@ -26,7 +26,7 @@ export function getContext(el) {
 }
 
 
-/** @type {(el: html.Element, predicate: (node: html.Node) => boolean) => html.Node | null} */
+/** @type {(el: html.domhandler.Element, predicate: (node: html.domhandler.AnyNode) => boolean) => html.domhandler.Element | null} */
 export function findMatchingParent(el, predicate) {
   if (el.parent?.type !== 'tag') return null
   if (predicate(el.parent)) return el.parent
@@ -34,23 +34,7 @@ export function findMatchingParent(el, predicate) {
 }
 
 
-// /** @type {(doc: tagel.Node, message: string) => void} */
-// export function showError(doc, message) {
-//   let tagelErrorEl = html.qs(doc, el => el.attribs?.id === 'tagel-error')
-//   if (!tagelErrorEl) {
-//     tagelErrorEl = html.createElement('code', { id: 'tagel-error', style: styles.error })
-//     const body = html.documentBody(doc)
-//     if (body) {
-//       html.append(body, tagelErrorEl)
-//     }
-//   }
-//   const errorEl = html.createElement('div')
-//   html.append(errorEl, html.createTextNode(message))
-//   html.append(tagelErrorEl, errorEl)
-// }
-
-
-/** @type {(doc: html.Document, errors: string[]) => void} */
+/** @type {(doc: html.domhandler.Document, errors: string[]) => void} */
 export function showErrors(doc, errors) {
   if (!errors.length) return
   const tagelErrorEl = html.createElement('code', { id: 'tagel-error', style: styles.error })

@@ -3,7 +3,7 @@ import * as html from '@synartisis/htmlparser'
 
 /**
  * removes elements with lang different than the current language
- * @param {html.Document | html.Element} root 
+ * @param {html.domhandler.Document | html.domhandler.Element} root 
  * @param {string} lang 
  * @returns {Promise<number>}
  */

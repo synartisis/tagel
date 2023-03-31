@@ -4,7 +4,7 @@ import { evaluate, getContext, setContext, findMatchingParent } from '../utils.j
 
 /**
  * repeats a template, once for each item oa an array
- * @type {(root: html.Element | html.Document, errors: string[]) => Promise<number>}
+ * @type {(root: html.domhandler.Document | html.domhandler.Element, errors: string[]) => Promise<number>}
  */
 export async function tgFor(root, errors) {
   let changes = 0

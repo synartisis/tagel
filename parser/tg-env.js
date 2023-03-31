@@ -3,7 +3,7 @@ import * as html from '@synartisis/htmlparser'
 
 /**
  * removes elements with tg-env different than the current env
- * @param {html.Document | html.Element} root 
+ * @param {html.domhandler.Document | html.domhandler.Element} root 
  * @param {'development' | 'production'} currentEnv 
  */
 export async function tgEnv(root, currentEnv) {
