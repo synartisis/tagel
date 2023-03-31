@@ -9,13 +9,12 @@ import { evaluate, getContext, setContext, findMatchingParent } from '../utils.j
 export async function tgFor(root, errors) {
   let changes = 0
   if (!root) return changes
-  const refs = html.qsa(root, el => el.type === 'tag' && !!el.attribs['tg-for'])
-    .filter(el => el.type === 'tag' && !findMatchingParent(el, par => par.type === 'tag' && !!par.attribs['tg-for']))
+  const refs = html.qsa(root, el => !!el.attribs['tg-for'])
+    .filter(el => !findMatchingParent(el, par => !!par.attribs['tg-for']))
     // skip nested tg-for elements to avoid missing context
   if (refs.length === 0) return changes
   
   for (const el of refs) {
-    if (el.type !== 'tag') continue
     const context = getContext(el)
     const expression = el.attribs['tg-for']
     const limit = Number.isInteger(el.attribs['tg-for-limit']) ? Number(el.attribs['tg-for-limit']) : -1

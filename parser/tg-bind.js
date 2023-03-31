@@ -14,14 +14,13 @@ export async function tgBind(root, errors) {
   let changes = 0
   if (!root) return changes
   const refs = html.qsa(root, el => 
-    el.type === 'tag' && (!!el.attribs['tg-bind'] || !!el.attribs['tg-text'] || !!el.attribs['tg-html'] ||
-    !!(Object.keys(el.attribs).find(k => k.startsWith(BIND_ATTRIBUTE_PREFIX))))
-  ).filter(el => el.type === 'tag' && !findMatchingParent(el, par => par.type === 'tag' && !!par.attribs['tg-for']))
+    !!el.attribs['tg-bind'] || !!el.attribs['tg-text'] || !!el.attribs['tg-html'] ||
+    !!(Object.keys(el.attribs).find(k => k.startsWith(BIND_ATTRIBUTE_PREFIX)))
+  ).filter(el => !findMatchingParent(el, par => !!par.attribs['tg-for']))
   // skip nested tg-for elements to avoid missing context
   if (refs.length === 0) return changes
 
   for (const el of refs) {
-    if (el.type !== 'tag') continue
     const context = getContext(el)
     // content binding
     const attrs = Object.keys(el.attribs)

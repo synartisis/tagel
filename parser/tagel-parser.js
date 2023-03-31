@@ -63,8 +63,8 @@ function handleErrors(content, errors) {
 
 /** @type {(doc: html.domhandler.Document, context: any) => string} */
 function applyLang(doc, context) {
-  const htmlTag = html.qs(doc, el => el.type === 'tag' && el.name === 'html')
-  if (htmlTag?.type === 'tag') {
+  const htmlTag = html.qs(doc, el => el.name === 'html')
+  if (htmlTag) {
     if (context.lang) {
       htmlTag.attribs['lang'] = context.lang
     } else {

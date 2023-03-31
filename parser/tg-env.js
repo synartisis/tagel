@@ -8,10 +8,9 @@ import * as html from '@synartisis/htmlparser'
  */
 export async function tgEnv(root, currentEnv) {
   if (!root) return 0
-  const refs = html.qsa(root, el => el.type === 'tag' && !!el.attribs['tg-env'])
+  const refs = html.qsa(root, el => !!el.attribs['tg-env'])
   if (!refs.length) return 0
   for (const el of refs) {
-    if (el.type !== 'tag') continue
     if (el.attribs['tg-env'] !== currentEnv) {
       html.detachNode(el)
     } else {
