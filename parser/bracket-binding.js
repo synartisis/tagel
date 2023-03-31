@@ -14,7 +14,7 @@ export async function bracketBind(source, context, errors) {
     try {
       value = evaluate(expression, context)
       if (value === undefined) {
-        console.log(isInBody(match), match.groups?.expression)
+        // console.log(isInBody(match), match.groups?.expression)
         // console.log(match.input)
         // console.log(match.input.substring(0, match.index))
         value = `<span class="tagel-error"><em>ERROR:</em> cannot find: ${expression}</span>`

@@ -1,17 +1,15 @@
 import * as html from '@synartisis/htmlparser'
-import { bracketBind } from './bracket-binding.js'
 import { tgEnv } from './tg-env.js'
 import { tgImport } from './tg-import.js'
 import { tgLang } from './tg-lang.js'
 import { tgFor } from './tg-for.js'
 import { tgIf } from './tg-if.js'
 import { tgBind } from './tg-bind.js'
+import { bracketBind } from './bracket-binding.js'
 import { setContext, showErrors } from '../utils.js'
 
 const env = process.env.NODE_ENV === 'production' ? 'production' : 'development'
 const LOOP_THRESHOLD = 30
-
-import util from 'util'
 
 /**
  * applies tagel engine to source
@@ -23,13 +21,6 @@ export async function applyTagel(source, filename, context = {}) {
   const errors = []
   const doc = html.parseHtml(source)
   const lang = applyLang(doc, context)
-
-  // html.qsa(doc, el => !el.attribs).forEach(el => {
-  //   console.log(1, util.inspect(el, { depth: 0 }))
-  // })
-
-  
-  // return ''
 
   setContext(doc, context)
   let loops = 0
@@ -69,16 +60,16 @@ function handleErrors(content, errors) {
 }
 
 
-/** @type {(doc: tagel.Node, context: any) => string} */
+
+/** @type {(doc: html.Document, context: any) => string} */
 function applyLang(doc, context) {
-  let { lang } = context
-  const htmlTag = html.qs(doc, el => el.name === 'html')
-  if (htmlTag && htmlTag.attribs) {
-    if (lang) {
-      htmlTag.attribs['lang'] = lang
+  const htmlTag = html.qs(doc, el => el.type === 'tag' && el.name === 'html')
+  if (htmlTag?.type === 'tag') {
+    if (context.lang) {
+      htmlTag.attribs['lang'] = context.lang
     } else {
-      lang = htmlTag.attribs['lang']
+      context.lang = htmlTag.attribs['lang']
     }
   }
-  return lang
+  return context.lang
 }

@@ -7,7 +7,7 @@ export { htmlParser, applyTagel }
 
 
 /**
- * Applies tagel template engine to an html content using context
+ * Applies tagel template engine to an html content using a context
  * @type {(html: string, filename: string, context: any) => Promise<string>}
  */
 export async function tagel(html, filename, context) {

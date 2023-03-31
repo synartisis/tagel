@@ -1,28 +1,29 @@
 import * as html from '@synartisis/htmlparser'
-import { evaluate, getContext, findParent } from '../utils.js'
+import { evaluate, getContext, findMatchingParent } from '../utils.js'
 
 const BINDING_ATTRS = ['tg-bind', 'tg-text', 'tg-html']
 const BIND_ATTRIBUTE_PREFIX = 'tg:'
 
 /**
  * binds element content and attributes
- * @param {tagel.Node} root 
+ * @param {html.Document | html.Element} root 
  * @param {string[]} errors 
  * 
  */
 export async function tgBind(root, errors) {
-  if (!root) return 0
+  let changes = 0
+  if (!root) return changes
   const refs = html.qsa(root, el => 
-    !!el.attribs?.['tg-bind'] || !!el.attribs?.['tg-text'] || !!el.attribs?.['tg-html'] ||
-    !!(el.attribs && Object.keys(el.attribs).find(k => k.startsWith(BIND_ATTRIBUTE_PREFIX)))
-  ).filter(el => !findParent(el, par => !!par?.attribs?.['tg-for']))
+    el.type === 'tag' && (!!el.attribs['tg-bind'] || !!el.attribs['tg-text'] || !!el.attribs['tg-html'] ||
+    !!(Object.keys(el.attribs).find(k => k.startsWith(BIND_ATTRIBUTE_PREFIX))))
+  ).filter(el => el.type === 'tag' && !findMatchingParent(el, par => par.type === 'tag' && !!par.attribs['tg-for']))
   // skip nested tg-for elements to avoid missing context
-  if (!refs.length) return 0
+  if (refs.length === 0) return changes
 
   for (const el of refs) {
+    if (el.type !== 'tag') continue
     const context = getContext(el)
     // content binding
-    if (!el.attribs) return 0
     const attrs = Object.keys(el.attribs)
     const bindindAttr = BINDING_ATTRS.find(bAttr => attrs.includes(bAttr))
     if (bindindAttr) {
@@ -35,17 +36,18 @@ export async function tgBind(root, errors) {
         } catch (error) {
           // @ts-ignore
           errors.push(`[${bindindAttr}: ${expression}] ${error.message}`)
+          continue
         }
-        if (result) {
+        if (result !== undefined) {
           if (bindindAttr === 'tg-text') html.insertText(el, result)
           if (bindindAttr === 'tg-html') html.innerHTML(el, result)
           if (bindindAttr === 'tg-bind') {
             const newEl = html.parseFragment(result)
-            newEl.children?.forEach(child => html.insertBefore(child, el))
+            newEl.children.forEach(child => { if (child.type === 'tag' || child.type === 'text') html.insertBefore(child, el) })
           }
         }
       }
-      if (bindindAttr === 'tg-bind') html.remove(el)
+      if (bindindAttr === 'tg-bind') html.detachNode(el)
       delete el.attribs[bindindAttr]
     }
     // attributes binding
@@ -53,11 +55,13 @@ export async function tgBind(root, errors) {
       for (const bindAttr of Object.keys(el.attribs).filter(o => o.startsWith(BIND_ATTRIBUTE_PREFIX))) {
         const attr = bindAttr.substring(BIND_ATTRIBUTE_PREFIX.length)
         const attrContent = el.attribs[bindAttr]
+        // console.log({bindAttr, attr, attrContent})
         delete el.attribs[bindAttr]
         try {
           const value = evaluate(attrContent, context)
           if (value !== undefined) {
             el.attribs[attr] = String(value)
+            // console.log(el.attribs)
           }
         } catch (error) {
           // @ts-ignore
@@ -65,6 +69,7 @@ export async function tgBind(root, errors) {
         }
       }
     }
+    changes++
   }
-  return refs.length
+  return changes
 }

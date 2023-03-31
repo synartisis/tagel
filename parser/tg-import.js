@@ -5,23 +5,24 @@ import * as html from '@synartisis/htmlparser'
 
 /**
  * imports html partials
- * @type {(root: tagel.Node, filename: string, errors: string[]) => Promise<number>}
+ * @type {(root: html.Document | html.Element, filename: string, errors: string[]) => Promise<number>}
  */
 export async function tgImport(root, filename, errors) {
-  const refs = html.qsa(root, el => el.name === 'link' && el.attribs?.['rel'] === 'import')
+  const refs = html.qsa(root, el => el.type === 'tag' && el.name === 'link' && el.attribs['rel'] === 'import')
   if (!refs.length) return 0
   let errorCount = 0
   const dirname = path.dirname(filename)
   const partials = await Promise.all(refs.map(
     async ref => {
-      const href = ref.attribs?.['href']
+      if (ref.type !== 'tag') return
+      const href = ref.attribs['href']
       let content
       if (href) {
         const partialPath = path.join(dirname, href)
         try {
           content = await fs.readFile(partialPath, 'utf-8')
         } catch (/**@type {any}*/error) {
-          if (error?.code === 'ENOENT') {
+        if (error?.code === 'ENOENT') {
             errors.push(`cannot find ${path.relative('.', partialPath)} referenced by ${path.relative('.', filename)} (${href})`)
             errorCount ++
           } else {
@@ -33,23 +34,26 @@ export async function tgImport(root, filename, errors) {
     }
   ))
   for (const partial of partials) {
-    if (!partial.content || !partial.href) continue
-    const partialDoc = html.parseFragment(partial.content)
+    if (!partial || !partial.content || !partial.href || !partial.ref.parent) continue
+    let host = partial.ref.parent.type === 'tag' ? partial.ref.parent : undefined
+    const partialDoc = html.parseFragment(partial.content, host)
     const partialDir = path.dirname(partial.href)
     rewritePartials(partialDoc, partialDir)
+    /** @type {html.Node} */
     let insertAfterEl = partial.ref
-    partialDoc.children?.forEach(child => {
-      html.insertAfter(child, insertAfterEl)
+    partialDoc.children.forEach(child => {
+      // if (child.type !== 'tag' && child.type !== 'text') return
+      html.insertBefore(child, insertAfterEl)
       insertAfterEl = child
     })
-    html.remove(partial.ref)
+    html.detachNode(partial.ref)
   }
   return refs.length - errorCount
 }
 
   
 
-/** @type {(doc: tagel.Node, relPath: string) => void} */
+/** @type {(doc: html.Element | html.Document, relPath: string) => void} */
 function rewritePartials(doc, relPath) {
   const partialRefs = html.qsa(doc, el => [ 'script', 'link', 'img', 'a' ].includes(el.name))
   partialRefs.map(async el => {
