@@ -1,7 +1,7 @@
 import * as html from '@synartisis/htmlparser'
 
 
-const scopes = new Map
+const scopes = new WeakMap
 
 
 /** @type {(source: string, context: object) => any} */
@@ -47,7 +47,7 @@ export function showErrors(doc, errors) {
         .tagel-error > em { font-style: normal; padding: 0 4px; background-color: darkred; color: white; }
       </style>
     `)
-    const style = html.qs(errorStyles, el => el.type === 'tag' && el.name === 'style')
+    const style = html.qs(errorStyles, el => el.name === 'style')
     if (style) html.appendChild(body, style)
   }
   errors.forEach(error => {
@@ -57,6 +57,24 @@ export function showErrors(doc, errors) {
   })
 }
 
+
+/** 
+ * @param {RegExpMatchArray} match
+ * @param {string} expression 
+ * */
+export function highlightError(match, expression) {
+  if (isInBody(match)) {
+    return `<span class="tagel-error"><em>ERROR:</em> cannot find: ${expression}</span>`
+  } else {
+    return ''
+  }
+}
+
+
+/** @param {RegExpMatchArray} match */
+function isInBody(match) {
+  return match.input?.substring(0, match.index).includes('</head>')
+}
 
 const styles = {
   error: 'position: fixed; bottom: 0; color: #e78d4d; padding: 1rem; background: #000c; z-index: 99999999;'

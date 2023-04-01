@@ -30,10 +30,10 @@ export async function applyTagel(source, filename, context = {}) {
     changes = 0
 
     changes += await tgEnv(doc, env)
+    changes += await tgIf(doc, errors)
     changes += await tgImport(doc, filename, errors)
     changes += await tgLang(doc, lang)
     changes += await tgFor(doc, errors)
-    changes += await tgIf(doc, errors)
     changes += await tgBind(doc, errors)
     
     // console.debug({changes})
@@ -41,7 +41,6 @@ export async function applyTagel(source, filename, context = {}) {
   // console.debug({ loops })
   const contentAfterTagelTags = html.serialize(doc)
   const content = await bracketBind(contentAfterTagelTags, context, errors)
-
   if (errors.length > 0) {
     const contentWithErrors = handleErrors(content, errors)
     return contentWithErrors

@@ -1,4 +1,4 @@
-import { evaluate } from '../utils.js'
+import { evaluate, highlightError } from '../utils.js'
 
 const reBrackets = /\[\[\s*(?<expression>.+?)\s*\]\]/g
 
@@ -14,23 +14,15 @@ export async function bracketBind(source, context, errors) {
     try {
       value = evaluate(expression, context)
       if (value === undefined) {
-        // console.log(isInBody(match), match.groups?.expression)
-        // console.log(match.input)
-        // console.log(match.input.substring(0, match.index))
-        value = `<span class="tagel-error"><em>ERROR:</em> cannot find: ${expression}</span>`
+        value = highlightError(match, expression)
         errors.push(`[bracket-binding: ${expression}]`)
       }
-      content = content.replace(match[0], String(value))
     } catch (/**@type {any}*/ error) {
+      value = highlightError(match, expression)
       errors.push(`[bracket-binding: ${expression}] ${error.message}`)
-      continue
     }
+    content = content.replace(match[0], String(value))
   }
 
   return content
-}
-
-
-function isInBody(match) {
-  return match.input.substring(0, match.index).includes('</head>')
 }
