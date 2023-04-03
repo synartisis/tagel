@@ -1,1 +1,1 @@
-tagel-parser.applyTagel needs refactoring
+perf: attempt to scan the tree the minimum possible times
