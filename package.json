@@ -11,6 +11,6 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "@synartisis/htmlparser": "^0.1.0"
+    "@synartisis/htmlparser": "^0.1.1"
   }
 }
