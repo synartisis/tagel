@@ -11,6 +11,13 @@ declare global {
       toDetach: Array<html.Element | html.TextNode>
     }
 
+    interface ErrorEntry {
+      instances: { element: html.Element | html.TextNode, errorId: string, content: string }[]
+      expression: string
+      message?: string
+      error?: any
+    }
+
   }
 
 }
