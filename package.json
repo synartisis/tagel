@@ -1,6 +1,6 @@
 {
   "name": "tagel",
-  "version": "0.9.3",
+  "version": "0.9.4",
   "type": "module",
   "description": "",
   "main": "lib/tagel.js",
