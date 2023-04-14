@@ -11,6 +11,6 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "syn-html-parser": "^0.3.7"
+    "syn-html-parser": "^0.3.8"
   }
 }
