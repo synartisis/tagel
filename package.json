@@ -5,12 +5,15 @@
   "description": "",
   "main": "lib/tagel.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "preversion": "tsc"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "syn-html-parser": "^0.3.8"
+    "syn-html-parser": "^0.4.1"
+  },
+  "devDependencies": {
+    "@types/node": "^18.15.12"
   }
 }
