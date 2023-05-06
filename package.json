@@ -3,7 +3,9 @@
   "version": "0.10.0",
   "type": "module",
   "description": "",
-  "main": "lib/tagel.js",
+  "exports": {
+    ".": "./lib/tagel.js"
+  },
   "scripts": {
     "preversion": "tsc"
   },
